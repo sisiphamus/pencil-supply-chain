@@ -1919,28 +1919,38 @@ gsap.from('#v-map',{opacity:0,scale:.88,duration:1,ease:'power2.out',scrollTrigg
   btn.appendChild(bSvg);
 
   let temp=0;let done=false;
+  // Cooling: runs every 50ms. Cools FASTER the hotter it gets — exponential heat loss.
+  // At 0C: loses ~5C/tick. At 500C: ~20C/tick. At 900C: ~40C/tick. Brutal.
   let coolInterval=setInterval(()=>{
-    if(!done&&temp>0){temp=Math.max(0,temp-8);updateTemp();}
-  },200);
+    if(!done&&temp>0){
+      const loss=5+temp*0.04;
+      temp=Math.max(0,temp-loss);
+      updateTemp();
+    }
+  },50);
   function updateTemp(){
     fill.style.width=Math.min(temp/1000*100,100)+'%';
     display.textContent=Math.round(temp)+'\u00B0C';
+    // Color shifts: red → orange → yellow as it heats up
+    if(temp<400) fill.style.background='#D94F4F';
+    else if(temp<700) fill.style.background='#E87030';
+    else if(temp<900) fill.style.background='#F4A020';
+    else fill.style.background='#F4C430';
     if(temp>=1000&&!done){
       done=true;
       clearInterval(coolInterval);
       prompt.classList.add('done');
       result.classList.add('show');
       fill.style.background='#F4C430';
-      // Flash the kiln SVG
       gsap.fromTo('#v-fire',{opacity:.6},{opacity:1,duration:.3,repeat:3,yoyo:true});
     }
   }
+  // Each click only adds 18C — you need to click FAST
   btn.addEventListener('click',function(){
     if(done)return;
-    temp=Math.min(temp+65,1050);
+    temp=Math.min(temp+18,1050);
     updateTemp();
-    // Pump animation
-    gsap.fromTo(btn,{scale:1},{scale:.9,duration:.05,yoyo:true,repeat:1});
+    gsap.fromTo(btn,{scale:1},{scale:.88,duration:.04,yoyo:true,repeat:1});
   });
 })();
 
