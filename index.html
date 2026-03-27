@@ -1937,18 +1937,19 @@ gsap.from('#v-map',{opacity:0,scale:.88,duration:1,ease:'power2.out',scrollTrigg
   btn.appendChild(bSvg);
 
   let temp=0;let done=false;
-  // Cooling: exponential curve. Trivially easy at the start, physically impossible near the end.
-  // Uses (temp/1000)^4 — so:
-  //   At 100C: loss = 0.0001 * 800 = 0.08C/tick  (basically nothing)
-  //   At 300C: loss = 0.0081 * 800 = 6.5C/tick    (gentle)
-  //   At 500C: loss = 0.0625 * 800 = 50C/tick     (getting hard)
-  //   At 700C: loss = 0.24 * 800 = 192C/tick      (very hard)
-  //   At 800C: loss = 0.41 * 800 = 328C/tick      (insane)
-  //   At 900C: loss = 0.66 * 800 = 528C/tick      (impossible)
+  // Cooling: exponential curve using (temp/1000)^5 * 200
+  //   At 200C: 0.000003 * 200 = ~0         (nothing)
+  //   At 400C: 0.01 * 200 = 2C/tick        (barely noticeable)
+  //   At 600C: 0.078 * 200 = 15.5C/tick    (starting to feel it)
+  //   At 700C: 0.168 * 200 = 33.6C/tick    (hard, need fast clicks)
+  //   At 800C: 0.328 * 200 = 65.5C/tick    (very hard)
+  //   At 850C: 0.444 * 200 = 88.7C/tick    (brutal)
+  //   At 900C: 0.59 * 200 = 118C/tick      (insane)
+  //   At 950C: 0.77 * 200 = 154C/tick      (near impossible)
   let coolInterval=setInterval(()=>{
     if(!done&&temp>0){
       const ratio=temp/1000;
-      const loss=Math.pow(ratio,4)*800;
+      const loss=Math.pow(ratio,5)*200;
       temp=Math.max(0,temp-loss);
       updateTemp();
     }
