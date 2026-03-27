@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Make a Pencil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Patrick+Hand&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --cream:#FFF8F0;--ink:#2C2C2C;--pencil:#F4C430;--cedar:#8B5E3C;
+  --graphite:#5A6068;--brass:#C5983B;--eraser:#E8847C;--red:#D94F4F;
+  --blue:#7EB8D4;--green:#5B8C5A;--light:#D4D0C8;
+  --hand:'Caveat',cursive;--body:'Patrick Hand',cursive;--clean:'Inter',sans-serif;
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:var(--cream);color:var(--ink);font-family:var(--body);line-height:1.6;overflow-x:hidden}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  opacity:.35;
+}
+
+/* Progress */
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--pencil);z-index:10000;width:0%;box-shadow:0 0 10px rgba(244,196,48,.4)}
+
+/* Depth counter */
+.depth{
+  position:fixed;left:20px;top:50%;transform:translateY(-50%);z-index:100;
+  font-family:var(--hand);color:var(--graphite);
+  text-align:center;opacity:.7;
+}
+.depth-num{font-size:clamp(2rem,3.5vw,2.8rem);font-weight:700;color:var(--pencil);display:block;line-height:1}
+.depth-of{font-size:clamp(.85rem,1.5vw,1rem);display:block;margin-top:2px}
+
+/* Pencil sidebar */
+.pencil-nav{
+  position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:100;
+  width:36px;height:260px;
+}
+.pencil-nav canvas{width:100%;height:100%}
+
+/* Scroll hint */
+.scroll-hint{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:100;
+  font-family:var(--hand);font-size:1rem;color:var(--graphite);text-align:center;
+  opacity:1;transition:opacity .5s;
+}
+.scroll-hint.gone{opacity:0;pointer-events:none}
+.scroll-hint svg{display:block;margin:4px auto 0;animation:bob 2s infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+
+/* ===== SECTIONS ===== */
+.s{
+  min-height:70vh;display:flex;align-items:center;justify-content:center;
+  padding:60px 24px;position:relative;
+}
+.s.full{min-height:100vh}
+.s.short{min-height:40vh}
+
+.s-inner{max-width:720px;width:100%;text-align:center}
+
+.s-vis{margin:0 auto 20px;position:relative;display:flex;justify-content:center}
+.s-vis svg{max-width:340px;width:100%;height:auto}
+
+.s-label{
+  font-family:var(--hand);font-size:1.05rem;color:var(--brass);
+  text-transform:uppercase;letter-spacing:3px;margin-bottom:8px;
+}
+.s-title{
+  font-family:var(--hand);font-size:clamp(2rem,4.5vw,3.2rem);
+  font-weight:700;line-height:1.2;margin-bottom:12px;
+}
+.s-text{
+  font-family:var(--body);font-size:1.35rem;color:var(--ink);
+  max-width:560px;margin:0 auto;opacity:.85;line-height:1.7;
+}
+.s-text strong{color:var(--ink);opacity:1}
+.s-aside{
+  font-family:var(--hand);font-size:1.2rem;color:var(--graphite);
+  margin-top:16px;font-style:italic;
+}
+
+/* Big number */
+.big-num{
+  font-family:var(--hand);font-size:clamp(3.5rem,9vw,8rem);
+  font-weight:700;color:var(--pencil);line-height:1;
+}
+.big-label{font-family:var(--body);font-size:1.3rem;color:var(--graphite)}
+
+/* Section colors */
+.s.bg-paper{background:var(--cream)}
+.s.bg-warm{background:#FDF6E8}
+.s.bg-cool{background:#F4F6F8}
+.s.bg-dark{background:#2C2C2C;color:#FFF8F0}
+.s.bg-dark .s-text{color:#D4D0C8}
+.s.bg-dark .s-aside{color:#9CA3AF}
+.s.bg-dark .s-label{color:var(--pencil)}
+
+/* Reveal */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease}
+.reveal.vis{opacity:1;transform:translateY(0)}
+
+/* Industry stat */
+.ind{display:flex;flex-wrap:wrap;justify-content:center;gap:36px;margin-top:24px;padding:14px 0 4px}
+.ind-i{text-align:center}
+.ind-v{font-family:var(--hand);font-size:clamp(1.8rem,3.5vw,2.4rem);font-weight:700;color:var(--pencil);line-height:1.2}
+.ind-l{font-family:var(--body);font-size:1.1rem;color:var(--graphite)}
+.ind-est{font-size:.75em;color:var(--graphite);opacity:.7;vertical-align:super;margin-left:1px}
+
+/* Country pills */
+.pills{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:18px}
+.pill{
+  font-family:var(--hand);font-size:clamp(1.1rem,2vw,1.35rem);padding:6px 20px;
+  color:var(--graphite);position:relative;
+}
+
+/* Responsive */
+@media(max-width:640px){
+  .s{padding:40px 16px}
+  .pencil-nav{right:8px;width:28px;height:200px}
+  .depth{left:10px}
+  .s-vis svg{max-width:240px}
+}
+
+/* Interactive elements */
+.game-prompt{
+  font-family:var(--hand);font-size:1.3rem;color:var(--ink);
+  margin-top:14px;text-align:center;cursor:default;
+  transition:opacity .5s;
+  padding:8px 20px;
+  background:rgba(244,196,48,.15);border-radius:20px;
+  display:inline-block;position:relative;
+  animation:pulseGlow 2s ease-in-out infinite;
+}
+.game-prompt::before{
+  content:'\261D';margin-right:6px;font-size:1.4em;
+}
+@keyframes pulseGlow{
+  0%,100%{box-shadow:0 0 0 0 rgba(244,196,48,.3)}
+  50%{box-shadow:0 0 0 10px rgba(244,196,48,0)}
+}
+.game-prompt.done{
+  opacity:.4;text-decoration:line-through;
+  animation:none;box-shadow:none;background:transparent;
+}
+.game-prompt.done::before{content:'\2714';color:var(--green)}
+/* Clickable game areas */
+.game-clickable{
+  cursor:pointer;position:relative;
+  border-radius:12px;
+  transition:transform .15s;
+}
+.game-clickable::after{
+  content:'';position:absolute;inset:-6px;border:2px dashed var(--pencil);
+  border-radius:14px;opacity:.5;animation:dashSpin 15s linear infinite;
+  pointer-events:none;
+}
+.game-clickable:hover{transform:scale(1.02)}
+.game-clickable:active{transform:scale(.98)}
+.game-clickable.game-done::after{border-color:var(--green);animation:none;opacity:.3}
+@keyframes dashSpin{
+  to{stroke-dashoffset:-100}
+}
+.game-btn{
+  display:inline-block;padding:10px 32px;margin-top:12px;
+  font-family:var(--hand);font-size:1.4rem;font-weight:700;
+  color:var(--ink);background:rgba(244,196,48,.2);border:none;cursor:pointer;
+  position:relative;transition:transform .1s;border-radius:8px;
+}
+.game-btn:hover{background:rgba(244,196,48,.35)}
+.game-btn:active{transform:scale(.93)}
+.game-btn svg{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);pointer-events:none}
+.game-meter{
+  width:240px;height:22px;margin:14px auto 0;position:relative;
+  border-radius:11px;overflow:hidden;
+}
+.game-meter-bg{width:100%;height:100%;position:absolute;top:0;left:0;background:rgba(0,0,0,.06);border-radius:11px}
+.game-meter-fill{height:100%;width:0%;transition:width .15s;position:relative;z-index:1;border-radius:11px}
+.game-slider{
+  width:240px;margin:12px auto 0;display:flex;align-items:center;gap:12px;
+}
+.game-slider input[type=range]{
+  flex:1;-webkit-appearance:none;height:8px;background:#D4D0C8;
+  border-radius:4px;outline:none;cursor:pointer;
+}
+.game-slider input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+  background:var(--pencil);border:2px solid var(--ink);cursor:pointer;
+}
+.game-slider-label{
+  font-family:var(--hand);font-size:1.3rem;font-weight:700;
+  min-width:40px;text-align:center;color:var(--ink);
+}
+.game-result{
+  font-family:var(--hand);font-size:1.4rem;color:var(--green);font-weight:700;
+  margin-top:10px;text-align:center;opacity:0;transition:opacity .4s;
+}
+.game-result.show{opacity:1}
+.chop-count{
+  font-family:var(--hand);font-size:1.2rem;color:var(--pencil);font-weight:700;
+  margin-top:6px;text-align:center;
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="prog"></div>
+<div class="depth" id="depth"><span class="depth-num" id="depthNum">0</span><span class="depth-of" id="depthOf">of 43</span></div>
+<div class="scroll-hint" id="hint">scroll<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M3 9l5 5 5-5"/></svg></div>
+<div class="pencil-nav" id="pencilNav">
+  <canvas id="pencilCanvas" width="72" height="520"></canvas>
+</div>
+
+<!-- ==================== HERO ==================== -->
+<section class="s full" data-step="0" id="hero">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-hero" viewBox="0 0 340 90" fill="none"></svg></div>
+    <div class="s-title" id="heroTitle" style="font-size:clamp(2.4rem,5vw,4rem);opacity:0">How to Make a Pencil</div>
+    <div class="s-text" id="heroText" style="max-width:400px;opacity:0">The most complex object you'll ever hold for ten cents.</div>
+  </div>
+</section>
+
+<!-- ==================== INTRO ==================== -->
+<section class="s" data-step="1">
+  <div class="s-inner">
+    <div class="big-num reveal">$0.10</div>
+    <div class="s-text reveal" style="margin-top:16px">That's all it costs. But no single person on Earth knows how to make one.</div>
+  </div>
+</section>
+
+<section class="s short" data-step="2">
+  <div class="s-inner">
+    <div class="s-text reveal" style="font-size:1.3rem">Let's take it apart.</div>
+  </div>
+</section>
+
+<!-- ==================== WOOD: THE TREE ==================== -->
+<section class="s bg-warm" data-step="3" data-section="wood">
+  <div class="s-inner">
+    <div class="s-label reveal">The Wood</div>
+    <div class="s-vis game-clickable" id="treeClickArea"><svg id="v-tree" viewBox="0 0 340 360" fill="none"></svg></div>
+    <div style="text-align:center"><div class="game-prompt" id="treePrompt">tap the tree to chop it down</div></div>
+    <div class="chop-count" id="chopCount"></div>
+    <div class="s-title reveal">Incense Cedar</div>
+    <div class="s-text reveal">Grown in Northern California and Oregon. Takes 14 years to mature. Processed into slats at Stockton, CA by CalCedar, the world's largest pencil slat supplier.</div>
+    <div class="pills reveal">
+      <span class="pill">California, USA</span>
+      <span class="pill">Oregon, USA</span>
+      <span class="pill">Canada</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$343B</div><div class="ind-l">forestry industry</div></div>
+      <div class="ind-i"><div class="ind-v">~33M</div><div class="ind-l">workers worldwide</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="4">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-log" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">The Logger</div>
+    <div class="s-text reveal">Fells the tree with a chainsaw. The chainsaw has a steel blade, plastic housing, and runs on gasoline.</div>
+    <div class="pills reveal">
+      <span class="pill">Pacific Northwest, USA</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$4.2B</div><div class="ind-l">chainsaw market</div></div>
+      <div class="ind-i"><div class="ind-v">~13M</div><div class="ind-l">loggers worldwide</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s bg-cool" data-step="5">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-steel" viewBox="0 0 340 240" fill="none"></svg></div>
+    <div class="s-title reveal">The Steel in the Chainsaw</div>
+    <div class="s-text reveal">Iron ore from Minnesota's Mesabi Range. Coal from West Virginia. Smelted at 1,500C in a blast furnace.</div>
+    <div class="pills reveal">
+      <span class="pill">Minnesota, USA</span>
+      <span class="pill">West Virginia, USA</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$1.8T</div><div class="ind-l">steel industry</div></div>
+      <div class="ind-i"><div class="ind-v">~6M</div><div class="ind-l">steelworkers</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="6">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-diesel" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">The Diesel in the Truck</div>
+    <div class="s-text reveal">Crude oil from the Permian Basin or Saudi Arabia. Refined in Houston. Pumped into the logging truck.</div>
+    <div class="pills reveal">
+      <span class="pill">Texas, USA</span>
+      <span class="pill">Saudi Arabia</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$5.7T</div><div class="ind-l">oil &amp; gas industry</div></div>
+      <div class="ind-i"><div class="ind-v">~12.4M</div><div class="ind-l">workers worldwide</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s bg-warm" data-step="7">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-sawmill" viewBox="0 0 340 240" fill="none"></svg></div>
+    <div class="s-title reveal">The Sawmill</div>
+    <div class="s-text reveal">Logs cut into "pencil stock" lumber, then sliced into slats with ultra-thin circular saws to minimize waste. Sorted by width, grade, and grain quality.</div>
+    <div class="pills reveal">
+      <span class="pill">Stockton, California</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$5.2B</div><div class="ind-l">sawmill equipment</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="8">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-kiln" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">The Kiln</div>
+    <div class="s-text reveal">Slats are kiln-dried, then baked, softened, waxed, and stained for consistency. The kiln runs on natural gas piped from Oklahoma.</div>
+    <div class="pills reveal">
+      <span class="pill">Oklahoma, USA</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$481B</div><div class="ind-l">natural gas market</div></div>
+    </div>
+    <div class="s-aside reveal">Just for the wood. We haven't touched the graphite yet.</div>
+  </div>
+</section>
+
+<!-- ==================== GRAPHITE ==================== -->
+<section class="s bg-cool" data-step="9" data-section="graphite">
+  <div class="s-inner">
+    <div class="s-label reveal">The Core</div>
+    <div class="s-vis"><svg id="v-mine" viewBox="0 0 340 300" fill="none"></svg></div>
+    <div class="s-title reveal">Graphite</div>
+    <div class="s-text reveal">Pure carbon, same element as diamond, arranged differently. Mined from open pits and underground tunnels.</div>
+    <div class="pills reveal">
+      <span class="pill">China</span>
+      <span class="pill">India</span>
+      <span class="pill">Brazil</span>
+      <span class="pill">Madagascar</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$15.7B</div><div class="ind-l">graphite market</div></div>
+      <div class="ind-i"><div class="ind-v">~1.6M tons</div><div class="ind-l">mined per year</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="10">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-crush" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">Crushed and Floated</div>
+    <div class="s-text reveal">Ore is crushed. Air bubbles carry graphite flakes to the surface. Rock sinks.</div>
+    <div class="pills reveal">
+      <span class="pill">Heilongjiang, China</span>
+      <span class="pill">Jharkhand, India</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~1.3M tons</div><div class="ind-l">from China alone</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s bg-warm" data-step="11">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-clay" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">The Clay</div>
+    <div class="s-text reveal">More clay = harder pencil (H). More graphite = softer (B). The ratio is everything.</div>
+    <div class="game-slider reveal">
+      <span class="game-slider-label" style="color:#5A6068">9B</span>
+      <input type="range" id="claySlider" min="0" max="100" value="50">
+      <span class="game-slider-label" style="color:#D4A470">9H</span>
+    </div>
+    <div style="text-align:center;margin-top:6px">
+      <span id="clayGrade" style="font-family:var(--hand);font-size:1.8rem;font-weight:700;color:var(--pencil)">HB</span>
+      <canvas id="clayStroke" width="200" height="30" style="display:block;margin:4px auto 0"></canvas>
+    </div>
+    <div class="pills reveal">
+      <span class="pill">Georgia, USA</span>
+      <span class="pill">Saxony, Germany</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$3.9B</div><div class="ind-l">kaolin clay market</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="12">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-extrude" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">Extruded</div>
+    <div class="s-text reveal">Mixed into paste. Forced through a tiny die. Like squeezing toothpaste at industrial pressure. Shaped into long spaghetti-like strings, straightened, dried, and cut.</div>
+    <div class="pills reveal">
+      <span class="pill">Nuremberg, Germany</span>
+      <span class="pill">Tianjin, China</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$91B</div><div class="ind-l">CNC machine tools</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s bg-cool" data-step="13">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-fire" viewBox="0 0 340 240" fill="none"></svg></div>
+    <div style="text-align:center"><div class="game-prompt" id="bellowsPrompt">pump the bellows to reach 1,000C</div></div>
+    <div class="game-meter" id="bellowsMeter"><div class="game-meter-bg" id="bellowsBg"></div><div class="game-meter-fill" id="bellowsFill" style="background:#D94F4F"></div></div>
+    <div style="text-align:center;margin-top:4px"><span id="tempDisplay" style="font-family:var(--hand);font-size:1.6rem;font-weight:700;color:var(--red)">0C</span></div>
+    <div style="text-align:center"><button class="game-btn" id="bellowsBtn">pump</button></div>
+    <div class="game-result" id="bellowsResult">rods glowing orange</div>
+    <div class="s-title reveal">Fired at 1,000C</div>
+    <div class="s-text reveal">Baked for hours. Then dipped in oil or molten wax that seeps into tiny pores, giving the pencil its smooth writing feel. The wax comes from petroleum or Brazilian carnauba palms.</div>
+    <div class="pills reveal">
+      <span class="pill">Japan</span>
+      <span class="pill">Brazil</span>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="14">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-machine" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">The Extrusion Machine</div>
+    <div class="s-text reveal">Precision-engineered in Japan or Germany. Hardened steel, electronic controls, hydraulics. Each part, its own supply chain.</div>
+    <div class="pills reveal">
+      <span class="pill">Osaka, Japan</span>
+      <span class="pill">Bavaria, Germany</span>
+    </div>
+    <div class="s-aside reveal">We're only two components into a pencil.</div>
+  </div>
+</section>
+
+<!-- ==================== PAINT ==================== -->
+<section class="s bg-warm" data-step="15" data-section="paint">
+  <div class="s-inner">
+    <div class="s-label reveal">The Paint</div>
+    <div class="s-vis"><svg id="v-paint" viewBox="0 0 340 300" fill="none"></svg></div>
+    <div class="s-title reveal">Why Yellow?</div>
+    <div class="s-text reveal">1890s. Best graphite came from China. Koh-I-Noor painted pencils yellow to signal Chinese origin. Pure marketing. Still going.</div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$211B</div><div class="ind-l">paints &amp; coatings</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="16">
+  <div class="s-inner">
+    <div class="big-num reveal">4&ndash;8</div>
+    <div class="big-label reveal">coats of lacquer, each dried individually</div>
+    <div style="margin-top:16px">
+      <div class="game-clickable" style="display:inline-block"><canvas id="lacquerPencil" width="280" height="60" style="display:block"></canvas></div>
+      <div style="text-align:center"><div class="game-prompt" id="lacquerPrompt">tap to dip the pencil</div></div>
+      <div class="chop-count" id="lacquerCount"></div>
+    </div>
+  </div>
+</section>
+
+<section class="s bg-cool" data-step="17">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-castor" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">Castor Oil</div>
+    <div class="s-text reveal">The lacquer base. Pressed from castor beans in Gujarat, India.</div>
+    <div class="pills reveal"><span class="pill">Gujarat, India</span></div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$2.3B</div><div class="ind-l">castor oil market</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="18">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-pigment" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">The Yellow Pigment</div>
+    <div class="s-text reveal">Cadmium sulfide. A byproduct of zinc smelting. The zinc was mined in Australia.</div>
+    <div class="pills reveal">
+      <span class="pill">Australia</span>
+      <span class="pill">China</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$30B</div><div class="ind-l">zinc market</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FERRULE ==================== -->
+<section class="s bg-warm" data-step="19" data-section="ferrule">
+  <div class="s-inner">
+    <div class="s-label reveal">The Ferrule</div>
+    <div class="s-vis"><svg id="v-ferrule" viewBox="0 0 340 260" fill="none"></svg></div>
+    <div class="s-title reveal">That Little Metal Band</div>
+    <div class="s-text reveal">Brass. Copper + zinc.</div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$269B</div><div class="ind-l">copper market</div></div>
+      <div class="ind-i"><div class="ind-v">~3.7M</div><div class="ind-l">miners worldwide</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="20">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-copper" viewBox="0 0 340 240" fill="none"></svg></div>
+    <div class="s-title reveal">The Copper</div>
+    <div class="s-text reveal">Chuquicamata, Chile. World's largest open-pit copper mine. 4.3 km wide. Visible from space.</div>
+    <div class="pills reveal">
+      <span class="pill">Chile</span>
+      <span class="pill">Peru</span>
+      <span class="pill">DR Congo</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~23M tons</div><div class="ind-l">copper mined/year</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s bg-cool" data-step="21">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-zinc" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">The Zinc</div>
+    <div class="s-text reveal">Queensland, Australia or Yunnan, China. Smelted at 907C. Alloyed with copper at a foundry in yet another country.</div>
+    <div class="pills reveal">
+      <span class="pill">Australia</span>
+      <span class="pill">China</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$30B</div><div class="ind-l">zinc mining</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="22">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-stamp" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">Rolled, Stamped, Crimped</div>
+    <div class="s-text reveal">One small ring. Three mining operations. Three continents.</div>
+    <div class="pills reveal">
+      <span class="pill">Shelbyville, Tennessee</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ERASER ==================== -->
+<section class="s bg-warm" data-step="23" data-section="eraser">
+  <div class="s-inner">
+    <div class="s-label reveal">The Eraser</div>
+    <div class="s-vis game-clickable" id="rubberClickArea"><svg id="v-rubber" viewBox="0 0 340 300" fill="none"></svg></div>
+    <div style="text-align:center"><div class="game-prompt" id="rubberPrompt">tap the tree to make a cut</div></div>
+    <div class="game-result" id="rubberResult">latex is flowing</div>
+    <div class="s-title reveal">Rubber</div>
+    <div class="s-text reveal">Tapped from Hevea brasiliensis trees at dawn, when latex flows best.</div>
+    <div class="pills reveal">
+      <span class="pill">Malaysia</span>
+      <span class="pill">Thailand</span>
+      <span class="pill">Indonesia</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$51B</div><div class="ind-l">rubber industry</div></div>
+      <div class="ind-i"><div class="ind-v">~60M tons</div><div class="ind-l">consumed per year</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="24">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-vulc" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">Vulcanization</div>
+    <div class="s-text reveal">Heat it with sulfur. Charles Goodyear discovered this by accident in 1839.</div>
+    <div class="pills reveal">
+      <span class="pill">Akron, Ohio, USA</span>
+      <span class="pill">Kuala Lumpur, Malaysia</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$2.5B</div><div class="ind-l">vulcanization market</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s bg-cool" data-step="25">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-pumice" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">Pumice</div>
+    <div class="s-text reveal">Volcanic rock from Italy. Without it, the eraser just smears.</div>
+    <div class="pills reveal"><span class="pill">Italy</span></div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$1.3B</div><div class="ind-l">pumice market</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="26">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-factice" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">Factice</div>
+    <div class="s-text reveal">Rapeseed oil from Saskatchewan, Canada. Reacted with sulfur so the eraser sheds cleanly.</div>
+    <div class="pills reveal"><span class="pill">Saskatchewan, Canada</span></div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$37B</div><div class="ind-l">rapeseed oil market</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s bg-warm" data-step="27">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-sulfur" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">The Sulfur</div>
+    <div class="s-text reveal">Byproduct of oil refining. Recovered from natural gas plants in Texas and Alberta.</div>
+    <div class="pills reveal">
+      <span class="pill">Texas, USA</span>
+      <span class="pill">Alberta, Canada</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$6.1B</div><div class="ind-l">sulfur market</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== GLUE ==================== -->
+<section class="s" data-step="28" data-section="glue">
+  <div class="s-inner">
+    <div class="s-label reveal">The Glue</div>
+    <div class="s-vis"><svg id="v-glue" viewBox="0 0 340 260" fill="none"></svg></div>
+    <div class="s-title reveal">PVA Adhesive</div>
+    <div class="s-text reveal">Bonds the two cedar halves. Invisible. Essential.</div>
+    <div class="pills reveal">
+      <span class="pill">USA</span>
+      <span class="pill">Germany</span>
+      <span class="pill">China</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$69B</div><div class="ind-l">adhesives market</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s bg-cool" data-step="29">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-ethylene" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">Ethylene + Acetic Acid</div>
+    <div class="s-text reveal">Ethylene from petroleum cracking. Acetic acid from methanol. Polymerized into glue in Germany or Louisiana.</div>
+    <div class="pills reveal">
+      <span class="pill">Germany</span>
+      <span class="pill">Louisiana, USA</span>
+      <span class="pill">Middle East</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== IMPRINT ==================== -->
+<section class="s bg-warm" data-step="30" data-section="imprint">
+  <div class="s-inner">
+    <div class="s-label reveal">The Imprint</div>
+    <div class="s-vis"><svg id="v-foil" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">Hot Foil Stamping</div>
+    <div class="s-text reveal">Brand name pressed on with metallic foil at 150C.</div>
+    <div class="pills reveal">
+      <span class="pill">Sanford, USA</span>
+      <span class="pill">Faber-Castell, Germany</span>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="31">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-foilmat" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">The Foil</div>
+    <div class="s-text reveal">Ultra-thin aluminum. Refined from bauxite mined in Guinea, West Africa.</div>
+    <div class="pills reveal">
+      <span class="pill">Guinea</span>
+      <span class="pill">China</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$29B</div><div class="ind-l">aluminum foil market</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s bg-cool" data-step="32">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-die" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">The Stamping Die</div>
+    <div class="s-text reveal">CNC-cut to 0.01mm tolerance. The CNC machine was built in Japan. Its cutting tools are tungsten carbide from China.</div>
+    <div class="pills reveal">
+      <span class="pill">Japan</span>
+      <span class="pill">China</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$91B</div><div class="ind-l">CNC machine tools</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SHIPPING ==================== -->
+<section class="s" data-step="33" data-section="shipping">
+  <div class="s-inner">
+    <div class="s-label reveal">The Journey</div>
+    <div class="s-vis"><svg id="v-ship" viewBox="0 0 340 240" fill="none"></svg></div>
+    <div class="s-title reveal">Container Ships</div>
+    <div class="s-text reveal">200 tons of fuel per day. The fuel is bunker oil, the lowest grade of petroleum.</div>
+    <div class="pills reveal">
+      <span class="pill">Pacific Ocean</span>
+      <span class="pill">Atlantic Ocean</span>
+      <span class="pill">Indian Ocean</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$12T</div><div class="ind-l">logistics industry</div></div>
+      <div class="ind-i"><div class="ind-v">~120M</div><div class="ind-l">workers worldwide</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s bg-warm" data-step="34">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-port" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">Ports</div>
+    <div class="s-text reveal">Shanghai. Rotterdam. Long Beach. Santos. Each crane, truck, and rail car, its own supply chain.</div>
+    <div class="pills reveal">
+      <span class="pill">Shanghai, China</span>
+      <span class="pill">Rotterdam, Netherlands</span>
+      <span class="pill">Long Beach, USA</span>
+      <span class="pill">Santos, Brazil</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ASSEMBLY ==================== -->
+<section class="s bg-cool" data-step="35" data-section="assembly">
+  <div class="s-inner">
+    <div class="s-label reveal">Assembly</div>
+    <div class="s-vis"><svg id="v-assembly" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div style="text-align:center;margin-top:8px">
+      <div class="game-clickable" style="display:inline-block"><canvas id="assemblyCanvas" width="320" height="100" style="display:block"></canvas></div>
+      <div style="text-align:center"><div class="game-prompt" id="assemblyPrompt">tap to assemble the pencil step by step</div></div>
+      <div class="game-result" id="assemblyResult">pencil complete</div>
+    </div>
+    <div class="s-title reveal">The Factory</div>
+    <div class="s-text reveal">Cores laid in grooved slats. Second slat glued on top. Sandwich cut into individual pencils, painted, stamped, and fitted.</div>
+    <div class="pills reveal">
+      <span class="pill">Shelbyville, Tennessee</span>
+      <span class="pill">Stein, Germany</span>
+      <span class="pill">S&atilde;o Carlos, Brazil</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~14B</div><div class="ind-l">pencils made/year</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" data-step="36">
+  <div class="s-inner">
+    <div class="big-num reveal">8</div>
+    <div class="big-label reveal">pencils from one sandwich of two slats</div>
+  </div>
+</section>
+
+<section class="s bg-warm" data-step="37">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-sharpen" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">Quality Control</div>
+    <div class="s-text reveal">Tested for straightness, centering, paint adhesion, smoothness. The instruments have their own supply chains.</div>
+    <div class="pills reveal">
+      <span class="pill">Factory floor</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PACKAGING ==================== -->
+<section class="s" data-step="38" data-section="packaging">
+  <div class="s-inner">
+    <div class="s-label reveal">Packaging</div>
+    <div class="s-vis"><svg id="v-box" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">The Box</div>
+    <div class="s-text reveal">Cardboard from pine pulp. Soy-based ink. Plastic wrap from ethylene. The UPC barcode system took decades to standardize.</div>
+    <div class="pills reveal">
+      <span class="pill">Scandinavia</span>
+      <span class="pill">Iowa, USA</span>
+    </div>
+    <div class="ind reveal">
+      <div class="ind-i"><div class="ind-v">~$234B</div><div class="ind-l">corrugated packaging</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s bg-cool" data-step="39">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-store" viewBox="0 0 340 200" fill="none"></svg></div>
+    <div class="s-title reveal">The Store Shelf</div>
+    <div class="s-text reveal">Warehouse. Distribution center. Delivery truck. Store. The barcode scanner uses a laser, a mirror, and a photosensor.</div>
+    <div class="pills reveal">
+      <span class="pill">Everywhere</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== DARK PAUSE ==================== -->
+<section class="s bg-dark full" data-step="40">
+  <div class="s-inner">
+    <div class="s-text reveal" style="font-size:1.4rem;color:#FFF8F0;max-width:440px">And we haven't even mentioned the electricity that powers every factory, the water that cools every kiln, or the roads, railways, and fiber-optic cables that connect them all.</div>
+  </div>
+</section>
+
+<!-- ==================== FINALE ==================== -->
+<section class="s full" data-step="41" data-section="finale">
+  <div class="s-inner">
+    <div class="s-vis"><svg id="v-map" viewBox="0 0 540 280" fill="none" style="max-width:680px"></svg></div>
+    <div class="reveal" style="display:flex;justify-content:center;gap:48px;flex-wrap:wrap;margin:30px 0">
+      <div style="text-align:center"><div class="big-num" data-count="29" style="font-size:clamp(2.5rem,6vw,4.5rem)">0</div><div class="big-label">countries</div></div>
+      <div style="text-align:center"><div class="big-num" data-count="6" style="font-size:clamp(2.5rem,6vw,4.5rem)">0</div><div class="big-label">continents</div></div>
+      <div style="text-align:center"><div class="big-num" data-count="1000000" data-suffix="+" style="font-size:clamp(2.5rem,6vw,4.5rem)">0</div><div class="big-label">people</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="s full" data-step="42">
+  <div class="s-inner">
+    <div class="s-title reveal" style="font-size:clamp(1.8rem,4vw,3rem);max-width:560px;margin:0 auto">No single person knows how to make this.</div>
+    <div class="s-text reveal" style="margin-top:20px;max-width:480px;font-size:1.2rem">Yet here it is. For a dime.</div>
+    <div class="s-aside reveal" style="margin-top:40px;font-size:.95rem">
+      Inspired by <a href="https://oll.libertyfund.org/titles/read-i-pencil-my-family-tree-as-told-to-leonard-e-read-dec-1958" target="_blank" style="color:var(--brass)">"I, Pencil" by Leonard Read, 1958</a>
+    </div>
+  </div>
+</section>
+
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js"></script>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+const R={roughness:1.8,bowing:2,strokeWidth:2,stroke:'#2C2C2C'};
+const sections=document.querySelectorAll('.s');
+document.getElementById('depthOf').textContent='of '+sections.length;
+
+function d(id){return document.getElementById(id)}
+function rc(id){return rough.svg(d(id))}
+
+// ===== ALL ILLUSTRATIONS =====
+
+(function(){const s=rc('v-hero');
+d('v-hero').appendChild(s.rectangle(50,25,200,40,{...R,fill:'#F4C430',fillStyle:'solid',fillWeight:1}));
+d('v-hero').appendChild(s.polygon([[50,25],[15,45],[50,65]],{...R,fill:'#8B5E3C',fillStyle:'solid'}));
+d('v-hero').appendChild(s.polygon([[25,37],[15,45],[25,53]],{...R,fill:'#5A6068',fillStyle:'solid',stroke:'#5A6068'}));
+d('v-hero').appendChild(s.rectangle(250,23,18,44,{...R,fill:'#C5983B',fillStyle:'solid'}));
+d('v-hero').appendChild(s.rectangle(268,27,22,36,{...R,fill:'#E8847C',fillStyle:'solid'}));
+})();
+
+// Tree: stump group (stays) + top group (falls)
+(function(){const s=rc('v-tree');const v=d('v-tree');
+// Stump (lower trunk — stays after chop)
+const stumpG=document.createElementNS('http://www.w3.org/2000/svg','g');
+stumpG.id='treeStump';
+stumpG.appendChild(s.rectangle(155,250,30,80,{...R,fill:'#8B5E3C',fillStyle:'hachure',hachureGap:5}));
+v.appendChild(stumpG);
+// Ground
+v.appendChild(s.line(40,330,300,330,{...R,roughness:2.5}));
+// Top part (trunk above cut + canopy — will fall)
+const topG=document.createElementNS('http://www.w3.org/2000/svg','g');
+topG.id='treeTop';
+topG.appendChild(s.rectangle(155,80,30,170,{...R,fill:'#8B5E3C',fillStyle:'hachure',hachureGap:5}));
+topG.appendChild(s.ellipse(170,165,180,110,{...R,fill:'#5B8C5A',fillStyle:'hachure',hachureGap:5,fillWeight:1.5}));
+topG.appendChild(s.ellipse(170,120,140,90,{...R,fill:'#5B8C5A',fillStyle:'cross-hatch',hachureGap:6,fillWeight:1}));
+topG.appendChild(s.ellipse(170,85,90,70,{...R,fill:'#5B8C5A',fillStyle:'hachure',hachureGap:5,fillWeight:1.5}));
+v.appendChild(topG);
+// Notch group (wedge cutout — grows with each chop)
+const notchG=document.createElementNS('http://www.w3.org/2000/svg','g');
+notchG.id='treeNotch';
+v.appendChild(notchG);
+})();
+
+// Logger: tree stump with axe embedded in it
+(function(){const s=rc('v-log');const v=d('v-log');
+// Ground
+v.appendChild(s.line(30,170,310,170,{...R,roughness:2.5}));
+// Stump
+v.appendChild(s.rectangle(120,110,100,60,{...R,fill:'#8B5E3C',fillStyle:'hachure',hachureGap:5}));
+v.appendChild(s.ellipse(170,110,100,25,{...R,fill:'#D4A470',fillStyle:'hachure',hachureGap:3,hachureAngle:45}));
+// Tree rings on stump top
+v.appendChild(s.ellipse(170,110,60,14,{stroke:'#8B5E3C',strokeWidth:1,roughness:1.5}));
+v.appendChild(s.ellipse(170,110,30,8,{stroke:'#8B5E3C',strokeWidth:1,roughness:1.5}));
+// Axe handle (diagonal)
+v.appendChild(s.line(200,60,250,150,{...R,strokeWidth:3.5,stroke:'#8B5E3C'}));
+// Axe head (wedged into stump)
+v.appendChild(s.polygon([[195,58],[185,45],[210,40],[215,55]],{...R,fill:'#9CA3AF',fillStyle:'solid'}));
+// Wood chips around stump
+[90,140,210,260].forEach(x=>v.appendChild(s.rectangle(x,160+Math.random()*8,12+Math.random()*8,4,{roughness:1.5,fill:'#D4A470',fillStyle:'solid',stroke:'#8B5E3C',strokeWidth:.8})));
+// Fallen tree behind
+v.appendChild(s.line(20,95,130,95,{...R,strokeWidth:8,stroke:'#8B5E3C'}));
+v.appendChild(s.ellipse(20,95,20,20,{...R,fill:'#D4A470',fillStyle:'hachure',hachureGap:3}));
+})();
+
+// Steel: ingot over fire
+(function(){const s=rc('v-steel');
+// Fire/coals underneath
+[110,135,160,185,210,235].forEach(x=>d('v-steel').appendChild(s.polygon([[x-10,180],[x,155],[x+10,180]],{fill:'#D94F4F',fillStyle:'solid',stroke:'#F4C430',strokeWidth:1,roughness:2})));
+[120,150,180,210].forEach(x=>d('v-steel').appendChild(s.polygon([[x-6,180],[x,165],[x+6,180]],{fill:'#F4C430',fillStyle:'solid',stroke:'#F4C430',strokeWidth:1,roughness:1.5})));
+// Grate
+d('v-steel').appendChild(s.line(90,180,250,180,{...R,strokeWidth:2.5}));
+[110,140,170,200,230].forEach(x=>d('v-steel').appendChild(s.line(x,180,x,190,{...R,strokeWidth:2})));
+// Steel ingot sitting on grate
+d('v-steel').appendChild(s.rectangle(120,120,100,60,{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:4,fillWeight:1.5}));
+d('v-steel').appendChild(s.polygon([[120,120],[140,100],[240,100],[220,120]],{...R,fill:'#B0B8C0',fillStyle:'solid'}));
+d('v-steel').appendChild(s.polygon([[220,120],[240,100],[240,160],[220,180]],{...R,fill:'#7A8290',fillStyle:'solid'}));
+// Heat shimmer lines
+[140,160,180,200].forEach(x=>{
+  d('v-steel').appendChild(s.line(x,110,x-5,80,{stroke:'#D94F4F',strokeWidth:1,roughness:3,bowing:5}));
+});
+})();
+
+// Diesel: gas/jerry can
+(function(){const s=rc('v-diesel');
+// Jerry can body
+d('v-diesel').appendChild(s.rectangle(110,50,120,120,{...R,fill:'#D94F4F',fillStyle:'solid'}));
+// Side panel ridges
+[130,150,170,190,210].forEach(x=>d('v-diesel').appendChild(s.line(x,60,x,160,{stroke:'#B03030',strokeWidth:1.5,roughness:1})));
+// Handle on top
+d('v-diesel').appendChild(s.line(135,50,135,30,{...R,strokeWidth:3}));
+d('v-diesel').appendChild(s.line(135,30,185,30,{...R,strokeWidth:3}));
+d('v-diesel').appendChild(s.line(185,30,185,50,{...R,strokeWidth:3}));
+// Spout
+d('v-diesel').appendChild(s.rectangle(200,25,15,35,{...R,fill:'#9CA3AF',fillStyle:'solid'}));
+d('v-diesel').appendChild(s.rectangle(198,20,19,8,{...R,fill:'#5A6068',fillStyle:'solid'}));
+// Label
+const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+t.setAttribute('x','170');t.setAttribute('y','120');t.setAttribute('text-anchor','middle');
+t.setAttribute('font-family','Caveat,cursive');t.setAttribute('font-size','20');t.setAttribute('font-weight','700');
+t.setAttribute('fill','#FFF8F0');t.textContent='DIESEL';d('v-diesel').appendChild(t);
+})();
+
+// Sawmill: stack of lumber/slats
+(function(){const s=rc('v-sawmill');
+// Stack of 4x4-ish lumber pieces
+for(let i=0;i<6;i++){
+  const y=180-i*25;const x=80+i*3;const w=180-i*6;
+  d('v-sawmill').appendChild(s.rectangle(x,y,w,20,{...R,fill:i%2===0?'#D4A470':'#C5983B',fillStyle:'hachure',hachureGap:4+i,hachureAngle:0}));
+  // End grain circle
+  d('v-sawmill').appendChild(s.ellipse(x+w,y+10,20,20,{...R,fill:'#E8D5B0',fillStyle:'hachure',hachureGap:3,hachureAngle:45}));
+}
+// Saw cuts visible on top piece
+d('v-sawmill').appendChild(s.line(95,60,245,60,{stroke:'#8B5E3C',strokeWidth:1,roughness:1.5}));
+// Small sawdust particles
+[100,130,200,240,160].forEach(x=>d('v-sawmill').appendChild(s.circle(x,210+Math.random()*15,2+Math.random()*3,{fill:'#D4A470',fillStyle:'solid',stroke:'#D4A470',roughness:1})));
+})();
+
+(function(){const s=rc('v-kiln');
+d('v-kiln').appendChild(s.rectangle(80,60,180,100,{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:6}));
+d('v-kiln').appendChild(s.arc(170,60,180,60,Math.PI,0,true,{...R,fill:'#5A6068',fillStyle:'solid'}));
+[110,140,170,200,230].forEach(x=>d('v-kiln').appendChild(s.polygon([[x-8,160],[x,140],[x+8,160]],{fill:'#D94F4F',fillStyle:'solid',stroke:'#F4C430',strokeWidth:1,roughness:2})));
+})();
+
+// Graphite mine: simple cave entrance with mine cart coming out on rails
+(function(){const s=rc('v-mine');const v=d('v-mine');
+// Mountain/hillside
+v.appendChild(s.polygon([[20,250],[80,120],[170,60],[260,110],[320,250]],{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:8,hachureAngle:70,roughness:2.5}));
+// Ground line
+v.appendChild(s.line(0,250,340,250,{...R,roughness:2}));
+// Cave entrance (dark arch)
+v.appendChild(s.arc(170,250,120,120,Math.PI,0,true,{...R,fill:'#2C2C2C',fillStyle:'solid'}));
+// Timber supports around entrance
+v.appendChild(s.line(110,190,110,250,{stroke:'#8B5E3C',strokeWidth:5,roughness:1.2}));
+v.appendChild(s.line(230,190,230,250,{stroke:'#8B5E3C',strokeWidth:5,roughness:1.2}));
+v.appendChild(s.arc(170,195,120,50,Math.PI,0,false,{stroke:'#8B5E3C',strokeWidth:5,roughness:1.2}));
+// Rails coming out of cave
+v.appendChild(s.line(140,250,80,280,{stroke:'#9CA3AF',strokeWidth:2.5,roughness:1}));
+v.appendChild(s.line(200,250,260,280,{stroke:'#9CA3AF',strokeWidth:2.5,roughness:1}));
+// Mine cart on rails (outside cave)
+v.appendChild(s.polygon([[120,235],[115,255],[195,255],[190,235]],{...R,fill:'#8B5E3C',fillStyle:'solid'}));
+// Wheels
+v.appendChild(s.circle(130,258,7,{fill:'#5A6068',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.2,roughness:1}));
+v.appendChild(s.circle(180,258,7,{fill:'#5A6068',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.2,roughness:1}));
+// Dark graphite chunks heaped in cart
+[[130,230],[145,225],[160,228],[175,225],[150,220],[165,218]].forEach(([x,y])=>{
+  v.appendChild(s.polygon([[x,y],[x+8,y-10],[x+16,y]],{fill:'#5A6068',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.8,roughness:1.5}));
+});
+})();
+
+// Crusher: V-shaped jaw crusher with rocks going in top, gravel coming out bottom
+(function(){const s=rc('v-crush');const v=d('v-crush');
+// Left jaw
+v.appendChild(s.polygon([[100,30],[120,30],[140,150],[100,150]],{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:5}));
+// Right jaw
+v.appendChild(s.polygon([[220,30],[240,30],[240,150],[200,150]],{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:5}));
+// Big rocks going in at top
+v.appendChild(s.polygon([[140,20],[155,5],[170,22],[160,30]],{...R,fill:'#5A6068',fillStyle:'solid'}));
+v.appendChild(s.polygon([[170,15],[190,8],[195,25],[175,28]],{...R,fill:'#708090',fillStyle:'solid'}));
+v.appendChild(s.polygon([[155,30],[165,18],[180,32]],{...R,fill:'#5A6068',fillStyle:'solid'}));
+// Small gravel coming out bottom
+[145,155,165,175,185,195].forEach(x=>{
+  const sz=3+Math.random()*5;
+  v.appendChild(s.circle(x,155+Math.random()*20,sz,{fill:'#5A6068',fillStyle:'solid',stroke:'#5A6068',strokeWidth:.5,roughness:1}));
+});
+// Arrows showing direction
+v.appendChild(s.line(170,40,170,55,{stroke:'#D94F4F',strokeWidth:2,roughness:1}));
+v.appendChild(s.line(165,50,170,55,{stroke:'#D94F4F',strokeWidth:1.5}));
+v.appendChild(s.line(175,50,170,55,{stroke:'#D94F4F',strokeWidth:1.5}));
+})();
+
+// Clay: lump of clay being shaped, with hands/bowl
+// Clay: two bags of raw material (graphite + clay) being poured together
+(function(){const s=rc('v-clay');const v=d('v-clay');
+// Left bag (graphite - dark)
+v.appendChild(s.polygon([[40,40],[100,40],[110,120],[30,120]],{...R,fill:'#5A6068',fillStyle:'solid'}));
+v.appendChild(s.polygon([[45,40],[50,25],[90,25],[95,40]],{...R,fill:'#5A6068',fillStyle:'hachure',hachureGap:4}));
+const t1=document.createElementNS('http://www.w3.org/2000/svg','text');
+t1.setAttribute('x','70');t1.setAttribute('y','90');t1.setAttribute('text-anchor','middle');
+t1.setAttribute('font-family','Caveat,cursive');t1.setAttribute('font-size','14');t1.setAttribute('font-weight','700');
+t1.setAttribute('fill','#FFF8F0');t1.textContent='graphite';v.appendChild(t1);
+// Right bag (clay - tan)
+v.appendChild(s.polygon([[200,40],[260,40],[270,120],[190,120]],{...R,fill:'#D4A470',fillStyle:'solid'}));
+v.appendChild(s.polygon([[205,40],[210,25],[250,25],[255,40]],{...R,fill:'#D4A470',fillStyle:'hachure',hachureGap:4}));
+const t2=document.createElementNS('http://www.w3.org/2000/svg','text');
+t2.setAttribute('x','230');t2.setAttribute('y','90');t2.setAttribute('text-anchor','middle');
+t2.setAttribute('font-family','Caveat,cursive');t2.setAttribute('font-size','14');t2.setAttribute('font-weight','700');
+t2.setAttribute('fill','#8B5E3C');t2.textContent='clay';v.appendChild(t2);
+// Pouring lines from both bags into mixing bowl
+v.appendChild(s.line(95,120,150,150,{stroke:'#5A6068',strokeWidth:2,roughness:2,bowing:3}));
+v.appendChild(s.line(205,120,190,150,{stroke:'#D4A470',strokeWidth:2,roughness:2,bowing:3}));
+// Mixing bowl below
+v.appendChild(s.arc(170,165,120,50,0,Math.PI,true,{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:5}));
+v.appendChild(s.ellipse(170,165,120,15,{...R,fill:'#9CA3AF',fillStyle:'solid'}));
+// Mixed paste in bowl
+v.appendChild(s.ellipse(170,160,80,10,{fill:'#8B7060',fillStyle:'solid',stroke:'#5A6068',strokeWidth:1,roughness:1.5}));
+})();
+
+// Extrude: toothpaste-like tube squeezing out thin spaghetti strands
+(function(){const s=rc('v-extrude');const v=d('v-extrude');
+// Machine body (like a big tube/hopper)
+v.appendChild(s.polygon([[60,60],[180,60],[190,90],[200,100],[200,110],[190,120],[180,140],[60,140]],{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:5}));
+// Nozzle/die plate
+v.appendChild(s.rectangle(195,80,20,50,{...R,fill:'#5A6068',fillStyle:'solid'}));
+// Spaghetti strands coming out
+for(let y=85;y<125;y+=6){
+  v.appendChild(s.line(215,y,310,y+Math.random()*4-2,{stroke:'#5A6068',strokeWidth:2,roughness:1.5,bowing:2}));
+}
+// Push arrow
+v.appendChild(s.line(30,100,55,100,{stroke:'#D94F4F',strokeWidth:2.5,roughness:1}));
+v.appendChild(s.line(48,94,55,100,{stroke:'#D94F4F',strokeWidth:2}));
+v.appendChild(s.line(48,106,55,100,{stroke:'#D94F4F',strokeWidth:2}));
+})();
+
+// Fired at 1000C: clear industrial kiln with visible fire and graphite rods inside
+(function(){const s=rc('v-fire');const v=d('v-fire');
+// Kiln body (horizontal cylinder shape)
+v.appendChild(s.rectangle(50,60,220,100,{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:7}));
+// Rounded ends
+v.appendChild(s.ellipse(50,110,30,100,{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:6}));
+v.appendChild(s.ellipse(270,110,30,100,{...R,fill:'#5A6068',fillStyle:'solid'}));
+// Open front showing fire inside
+v.appendChild(s.ellipse(270,110,22,80,{fill:'#2C2C2C',fillStyle:'solid',stroke:'#2C2C2C',roughness:1.5}));
+// Fire/glow inside the opening
+v.appendChild(s.ellipse(270,120,16,40,{fill:'#D94F4F',fillStyle:'solid',stroke:'#D94F4F',roughness:1.5}));
+v.appendChild(s.ellipse(270,118,10,25,{fill:'#F4C430',fillStyle:'solid',stroke:'#F4C430',roughness:1.5}));
+// Graphite rods visible going in
+[90,100,110,120].forEach(y=>v.appendChild(s.line(100,y,268,y,{stroke:'#5A6068',strokeWidth:2.5,roughness:1})));
+// Flames underneath
+[80,110,140,170,200,230].forEach(x=>v.appendChild(s.polygon([[x-8,165],[x,148],[x+8,165]],{fill:'#D94F4F',fillStyle:'solid',stroke:'#F4C430',strokeWidth:1,roughness:2})));
+[95,125,155,185,215].forEach(x=>v.appendChild(s.polygon([[x-5,165],[x,155],[x+5,165]],{fill:'#F4C430',fillStyle:'solid',stroke:'#F4C430',roughness:1.5})));
+// Temperature label (big and clear)
+const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+t.setAttribute('x','160');t.setAttribute('y','200');t.setAttribute('text-anchor','middle');
+t.setAttribute('font-family','Caveat,cursive');t.setAttribute('font-size','22');t.setAttribute('font-weight','700');
+t.setAttribute('fill','#D94F4F');t.textContent='1,000\u00B0C';v.appendChild(t);
+})();
+
+// Machine: industrial press with gears and control panel
+(function(){const s=rc('v-machine');const v=d('v-machine');
+// Main body
+v.appendChild(s.rectangle(80,50,180,110,{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:6}));
+// Two gears
+v.appendChild(s.circle(130,100,35,{...R,fill:'#5A6068',fillStyle:'solid'}));
+v.appendChild(s.circle(130,100,15,{...R,fill:'#9CA3AF',fillStyle:'solid'}));
+v.appendChild(s.circle(210,100,35,{...R,fill:'#5A6068',fillStyle:'solid'}));
+v.appendChild(s.circle(210,100,15,{...R,fill:'#9CA3AF',fillStyle:'solid'}));
+// Gear teeth hints
+[0,60,120,180,240,300].forEach(a=>{const r=a*Math.PI/180;
+  v.appendChild(s.line(130+15*Math.cos(r),100+15*Math.sin(r),130+20*Math.cos(r),100+20*Math.sin(r),{stroke:'#5A6068',strokeWidth:3,roughness:.8}));
+  v.appendChild(s.line(210+15*Math.cos(r),100+15*Math.sin(r),210+20*Math.cos(r),100+20*Math.sin(r),{stroke:'#5A6068',strokeWidth:3,roughness:.8}));
+});
+// Control panel on top
+v.appendChild(s.rectangle(100,30,60,25,{...R,fill:'#2C2C2C',fillStyle:'solid'}));
+v.appendChild(s.circle(115,42,6,{fill:'#5B8C5A',fillStyle:'solid',stroke:'#5B8C5A',roughness:1}));
+v.appendChild(s.circle(135,42,6,{fill:'#D94F4F',fillStyle:'solid',stroke:'#D94F4F',roughness:1}));
+v.appendChild(s.circle(150,42,6,{fill:'#F4C430',fillStyle:'solid',stroke:'#F4C430',roughness:1}));
+// Base/legs
+v.appendChild(s.line(90,160,90,175,{...R,strokeWidth:3}));
+v.appendChild(s.line(250,160,250,175,{...R,strokeWidth:3}));
+})();
+
+(function(){const s=rc('v-paint');
+d('v-paint').appendChild(s.rectangle(110,100,120,130,{...R,fill:'#F4C430',fillStyle:'solid'}));
+d('v-paint').appendChild(s.ellipse(170,100,120,30,{...R,fill:'#D4A420',fillStyle:'solid'}));
+[125,150,175,200].forEach(x=>{const h=25+Math.random()*35;
+d('v-paint').appendChild(s.line(x,230,x,230+h,{stroke:'#F4C430',strokeWidth:3+Math.random()*3,roughness:1.5}));
+d('v-paint').appendChild(s.circle(x,232+h,6,{fill:'#F4C430',fillStyle:'solid',stroke:'#F4C430',strokeWidth:1,roughness:2}));});
+})();
+
+(function(){const s=rc('v-castor');
+d('v-castor').appendChild(s.ellipse(170,100,60,50,{...R,fill:'#5B8C5A',fillStyle:'solid'}));
+d('v-castor').appendChild(s.ellipse(140,80,40,30,{...R,fill:'#5B8C5A',fillStyle:'hachure',hachureGap:4}));
+d('v-castor').appendChild(s.ellipse(200,80,40,30,{...R,fill:'#5B8C5A',fillStyle:'hachure',hachureGap:4}));
+d('v-castor').appendChild(s.line(170,125,170,170,{...R,strokeWidth:3}));
+d('v-castor').appendChild(s.polygon([[165,170],[170,155],[175,170]],{fill:'#C5983B',fillStyle:'solid',stroke:'#C5983B',roughness:1.5}));
+d('v-castor').appendChild(s.circle(170,178,12,{fill:'#C5983B',fillStyle:'solid',stroke:'#C5983B',roughness:1.5}));
+})();
+
+// Pigment: test tubes / beakers with colored liquids
+(function(){const s=rc('v-pigment');const v=d('v-pigment');
+const colors=['#F4C430','#D94F4F','#7EB8D4','#5B8C5A'];
+[90,145,200,255].forEach((x,i)=>{
+  // Test tube
+  v.appendChild(s.rectangle(x,40,30,90,{...R,fill:'transparent'}));
+  v.appendChild(s.arc(x+15,130,30,20,0,Math.PI,true,{...R,fill:'transparent'}));
+  // Colored liquid fill (partial)
+  const fillH=40+Math.random()*20;
+  v.appendChild(s.rectangle(x+3,130-fillH,24,fillH,{fill:colors[i],fillStyle:'solid',stroke:'transparent',roughness:1}));
+  v.appendChild(s.arc(x+15,130,24,16,0,Math.PI,true,{fill:colors[i],fillStyle:'solid',stroke:'transparent',roughness:1}));
+  // Meniscus line
+  v.appendChild(s.line(x+3,130-fillH,x+27,130-fillH,{stroke:colors[i],strokeWidth:1.5,roughness:1.5}));
+});
+})();
+
+// Ferrule: 3D cylinder ring (the actual band on a pencil, zoomed in)
+(function(){const s=rc('v-ferrule');const v=d('v-ferrule');
+// Outer cylinder
+v.appendChild(s.rectangle(90,80,160,100,{...R,fill:'#C5983B',fillStyle:'solid',strokeWidth:2.5}));
+// Top ellipse (3D)
+v.appendChild(s.ellipse(170,80,160,30,{...R,fill:'#D4A420',fillStyle:'solid'}));
+// Inner hole ellipse
+v.appendChild(s.ellipse(170,80,100,18,{...R,fill:'#2C2C2C',fillStyle:'solid'}));
+// Bottom ellipse hint
+v.appendChild(s.arc(170,180,160,30,0,Math.PI,false,{stroke:'#A07828',strokeWidth:1.5,roughness:1.5}));
+// Horizontal crimp lines
+[100,115,130,145,160].forEach(y=>v.appendChild(s.line(95,y,245,y,{stroke:'#A07828',strokeWidth:.7,roughness:1})));
+})();
+
+(function(){const s=rc('v-copper');
+[200,160,120,80].forEach((w,i)=>d('v-copper').appendChild(s.ellipse(170,120+i*15,w,40-i*5,{stroke:'#8B5E3C',strokeWidth:1.5,roughness:2,fill:i===3?'#5A6068':'transparent',fillStyle:'solid'})));
+d('v-copper').appendChild(s.line(20,200,320,200,{...R,roughness:2.5}));
+})();
+
+// Zinc: ingots/bars stacked
+(function(){const s=rc('v-zinc');const v=d('v-zinc');
+// Stack of zinc ingot bars (trapezoidal)
+[0,1,2].forEach(i=>{
+  const y=130-i*35;const x=100+i*10;
+  v.appendChild(s.polygon([[x,y],[x+15,y-25],[x+125,y-25],[x+140,y]],{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:4,fillWeight:1}));
+  v.appendChild(s.polygon([[x+140,y],[x+125,y-25],[x+140,y-25],[x+155,y]],{...R,fill:'#7A8290',fillStyle:'solid'}));
+});
+// "Zn" label on front ingot
+const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+t.setAttribute('x','170');t.setAttribute('y','125');t.setAttribute('text-anchor','middle');
+t.setAttribute('font-family','Caveat,cursive');t.setAttribute('font-size','22');t.setAttribute('font-weight','700');
+t.setAttribute('fill','#5A6068');t.textContent='Zn';v.appendChild(t);
+})();
+
+// Rolled, stamped, crimped: show brass sheet being rolled then stamped into ring shape
+(function(){const s=rc('v-stamp');const v=d('v-stamp');
+// Flat brass sheet on left
+v.appendChild(s.rectangle(30,80,80,8,{...R,fill:'#C5983B',fillStyle:'solid'}));
+// Arrow
+v.appendChild(s.line(115,84,140,84,{stroke:'#D94F4F',strokeWidth:2,roughness:1}));
+v.appendChild(s.line(134,78,140,84,{stroke:'#D94F4F',strokeWidth:1.5}));
+v.appendChild(s.line(134,90,140,84,{stroke:'#D94F4F',strokeWidth:1.5}));
+// Roller cylinders
+v.appendChild(s.ellipse(155,72,20,40,{...R,fill:'#9CA3AF',fillStyle:'solid'}));
+v.appendChild(s.ellipse(155,96,20,40,{...R,fill:'#9CA3AF',fillStyle:'solid'}));
+// Arrow
+v.appendChild(s.line(175,84,200,84,{stroke:'#D94F4F',strokeWidth:2,roughness:1}));
+v.appendChild(s.line(194,78,200,84,{stroke:'#D94F4F',strokeWidth:1.5}));
+v.appendChild(s.line(194,90,200,84,{stroke:'#D94F4F',strokeWidth:1.5}));
+// Finished ferrule ring on right (cylinder viewed from slight angle)
+v.appendChild(s.rectangle(210,65,50,38,{...R,fill:'#C5983B',fillStyle:'solid',strokeWidth:2.5}));
+v.appendChild(s.ellipse(235,65,50,15,{...R,fill:'#D4A420',fillStyle:'solid'}));
+v.appendChild(s.ellipse(235,65,30,8,{...R,fill:'#2C2C2C',fillStyle:'solid'}));
+// Crimp lines
+[72,78,84,90,96].forEach(y=>v.appendChild(s.line(212,y,258,y,{stroke:'#A07828',strokeWidth:.6,roughness:1})));
+// Labels
+const t1=document.createElementNS('http://www.w3.org/2000/svg','text');
+t1.setAttribute('x','70');t1.setAttribute('y','110');t1.setAttribute('text-anchor','middle');
+t1.setAttribute('font-family','Caveat,cursive');t1.setAttribute('font-size','12');t1.setAttribute('fill','#8B5E3C');
+t1.textContent='sheet';v.appendChild(t1);
+const t2=document.createElementNS('http://www.w3.org/2000/svg','text');
+t2.setAttribute('x','235');t2.setAttribute('y','120');t2.setAttribute('text-anchor','middle');
+t2.setAttribute('font-family','Caveat,cursive');t2.setAttribute('font-size','12');t2.setAttribute('fill','#8B5E3C');
+t2.textContent='ferrule';v.appendChild(t2);
+})();
+
+(function(){const s=rc('v-rubber');
+d('v-rubber').appendChild(s.rectangle(145,140,30,140,{...R,fill:'#8B5E3C',fillStyle:'hachure',hachureGap:5}));
+d('v-rubber').appendChild(s.ellipse(160,125,140,100,{...R,fill:'#5B8C5A',fillStyle:'hachure',hachureGap:5,fillWeight:1.5}));
+d('v-rubber').appendChild(s.line(175,190,195,230,{stroke:'#D94F4F',strokeWidth:3,roughness:1}));
+d('v-rubber').appendChild(s.rectangle(185,230,20,16,{...R,fill:'#9CA3AF',fillStyle:'solid'}));
+d('v-rubber').appendChild(s.circle(195,254,5,{fill:'#FFF8F0',fillStyle:'solid',stroke:'#D4D0C8',roughness:1}));
+})();
+
+// Vulcanization: cauldron/vat over fire with rubber + sulfur
+(function(){const s=rc('v-vulc');const v=d('v-vulc');
+// Cauldron/vat
+v.appendChild(s.arc(170,80,160,40,0,Math.PI,true,{...R,fill:'#5A6068',fillStyle:'solid'}));
+v.appendChild(s.rectangle(90,80,160,60,{...R,fill:'#5A6068',fillStyle:'hachure',hachureGap:6}));
+v.appendChild(s.arc(170,140,160,30,Math.PI,0,true,{...R,fill:'#5A6068',fillStyle:'solid'}));
+// Rubber inside (pink bubbling)
+v.appendChild(s.ellipse(170,90,120,30,{fill:'#E8847C',fillStyle:'solid',stroke:'#D06060',strokeWidth:1.5,roughness:2}));
+// Bubbles
+[140,160,180,200].forEach(x=>v.appendChild(s.circle(x,82+Math.random()*10,4+Math.random()*4,{stroke:'#D06060',strokeWidth:1,roughness:1,fill:'transparent'})));
+// Fire underneath
+[110,135,160,185,210].forEach(x=>v.appendChild(s.polygon([[x-8,160],[x,145],[x+8,160]],{fill:'#D94F4F',fillStyle:'solid',stroke:'#F4C430',strokeWidth:1,roughness:2})));
+// Sulfur being added (yellow sprinkle from above)
+v.appendChild(s.line(200,30,195,60,{stroke:'#F4C430',strokeWidth:2,roughness:2}));
+[190,195,200,205].forEach(x=>v.appendChild(s.circle(x+Math.random()*5,55+Math.random()*15,2,{fill:'#F4C430',fillStyle:'solid',stroke:'#F4C430',roughness:1})));
+// "S" label for sulfur
+const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+t.setAttribute('x','210');t.setAttribute('y','28');t.setAttribute('text-anchor','middle');
+t.setAttribute('font-family','Caveat,cursive');t.setAttribute('font-size','16');t.setAttribute('fill','#C5983B');
+t.textContent='+ sulfur';v.appendChild(t);
+})();
+
+// Pumice: recognizable porous rock with holes
+(function(){const s=rc('v-pumice');const v=d('v-pumice');
+// Rock shape (irregular, not a triangle)
+v.appendChild(s.polygon([
+  [100,150],[90,120],[100,90],[120,70],[150,55],[180,50],[210,60],
+  [235,80],[245,110],[240,140],[230,155],[200,160],[150,158]
+],{...R,fill:'#D4D0C8',fillStyle:'solid',roughness:2.5}));
+// Porous holes throughout
+[[130,90,8],[155,75,6],[180,70,7],[200,85,5],[145,110,9],[175,105,6],
+ [210,110,5],[125,130,7],[160,130,5],[195,130,7],[170,95,4],[220,125,4],
+ [140,75,5],[190,140,6],[150,145,4]].forEach(([x,y,r])=>{
+  v.appendChild(s.ellipse(x,y,r*2,r*1.5,{stroke:'#9CA3AF',strokeWidth:1,roughness:1.2,fill:'#FFF8F0',fillStyle:'solid'}));
+});
+// Shadow underneath
+v.appendChild(s.ellipse(170,165,130,12,{fill:'#D4D0C8',fillStyle:'solid',stroke:'transparent',roughness:2}));
+})();
+
+(function(){const s=rc('v-factice');
+for(let x=60;x<300;x+=20){const h=60+Math.random()*40;
+d('v-factice').appendChild(s.line(x,160,x,160-h,{stroke:'#5B8C5A',strokeWidth:1.5,roughness:1.5}));
+d('v-factice').appendChild(s.circle(x,155-h,6,{fill:'#F4C430',fillStyle:'solid',stroke:'#F4C430',roughness:1.5}));}
+d('v-factice').appendChild(s.line(30,160,310,160,{...R,roughness:2}));
+})();
+
+// Sulfur: pile of bright yellow crystals/chunks
+(function(){const s=rc('v-sulfur');const v=d('v-sulfur');
+// Pile mound
+v.appendChild(s.polygon([[60,160],[100,100],[140,80],[170,70],[200,75],[240,95],[280,160]],{...R,fill:'#F4C430',fillStyle:'solid',roughness:2.5}));
+// Crystal facets on top
+[[110,105,20,25],[150,80,18,22],[190,82,22,20],[230,100,18,20],[140,95,15,18],[170,78,12,15]].forEach(([x,y,w,h])=>{
+  v.appendChild(s.polygon([[x,y],[x+w/2,y-h],[x+w,y]],{stroke:'#C5983B',strokeWidth:1.2,roughness:1.5,fill:'#D4A420',fillStyle:'solid'}));
+});
+// Ground line
+v.appendChild(s.line(40,160,300,160,{...R,roughness:2}));
+// "S" element label
+const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+t.setAttribute('x','170');t.setAttribute('y','145');t.setAttribute('text-anchor','middle');
+t.setAttribute('font-family','Caveat,cursive');t.setAttribute('font-size','24');t.setAttribute('font-weight','700');
+t.setAttribute('fill','#8B5E3C');t.textContent='S';v.appendChild(t);
+})();
+
+(function(){const s=rc('v-glue');
+d('v-glue').appendChild(s.rectangle(130,80,80,130,{...R,fill:'#FFF8F0',fillStyle:'solid'}));
+d('v-glue').appendChild(s.polygon([[155,80],[170,40],[185,80]],{...R,fill:'#FFF8F0',fillStyle:'solid'}));
+d('v-glue').appendChild(s.rectangle(162,25,16,20,{...R,fill:'#D94F4F',fillStyle:'solid'}));
+})();
+
+// Ethylene + acetic acid: two labeled beakers combining into a bottle of glue
+(function(){const s=rc('v-ethylene');const v=d('v-ethylene');
+// Left beaker (ethylene)
+v.appendChild(s.polygon([[50,50],[40,130],[100,130],[90,50]],{...R,fill:'transparent'}));
+v.appendChild(s.rectangle(52,70,36,55,{fill:'#7EB8D4',fillStyle:'solid',stroke:'transparent',roughness:1}));
+v.appendChild(s.arc(70,130,60,15,0,Math.PI,true,{...R}));
+const t1=document.createElementNS('http://www.w3.org/2000/svg','text');
+t1.setAttribute('x','70');t1.setAttribute('y','155');t1.setAttribute('text-anchor','middle');
+t1.setAttribute('font-family','Caveat,cursive');t1.setAttribute('font-size','13');t1.setAttribute('fill','#5A6068');
+t1.textContent='ethylene';v.appendChild(t1);
+// Plus sign
+const tp=document.createElementNS('http://www.w3.org/2000/svg','text');
+tp.setAttribute('x','130');tp.setAttribute('y','100');tp.setAttribute('text-anchor','middle');
+tp.setAttribute('font-family','Caveat,cursive');tp.setAttribute('font-size','28');tp.setAttribute('font-weight','700');
+tp.setAttribute('fill','#5A6068');tp.textContent='+';v.appendChild(tp);
+// Right beaker (acetic acid)
+v.appendChild(s.polygon([[150,50],[140,130],[200,130],[190,50]],{...R,fill:'transparent'}));
+v.appendChild(s.rectangle(152,65,36,60,{fill:'#F4C430',fillStyle:'solid',stroke:'transparent',roughness:1}));
+v.appendChild(s.arc(170,130,60,15,0,Math.PI,true,{...R}));
+const t2=document.createElementNS('http://www.w3.org/2000/svg','text');
+t2.setAttribute('x','170');t2.setAttribute('y','155');t2.setAttribute('text-anchor','middle');
+t2.setAttribute('font-family','Caveat,cursive');t2.setAttribute('font-size','13');t2.setAttribute('fill','#5A6068');
+t2.textContent='acetic acid';v.appendChild(t2);
+// Arrow
+v.appendChild(s.line(210,90,240,90,{stroke:'#D94F4F',strokeWidth:2.5,roughness:1}));
+v.appendChild(s.line(234,84,240,90,{stroke:'#D94F4F',strokeWidth:2}));
+v.appendChild(s.line(234,96,240,90,{stroke:'#D94F4F',strokeWidth:2}));
+// Glue bottle result
+v.appendChild(s.rectangle(250,55,50,85,{...R,fill:'#FFF8F0',fillStyle:'solid'}));
+v.appendChild(s.polygon([[262,55],[275,30],[288,55]],{...R,fill:'#FFF8F0',fillStyle:'solid'}));
+v.appendChild(s.rectangle(268,20,14,15,{...R,fill:'#D94F4F',fillStyle:'solid'}));
+const t3=document.createElementNS('http://www.w3.org/2000/svg','text');
+t3.setAttribute('x','275');t3.setAttribute('y','155');t3.setAttribute('text-anchor','middle');
+t3.setAttribute('font-family','Caveat,cursive');t3.setAttribute('font-size','13');t3.setAttribute('fill','#5A6068');
+t3.textContent='PVA glue';v.appendChild(t3);
+})();
+
+// Hot foil stamping: pencil with heated die pressing text onto it
+(function(){const s=rc('v-foil');const v=d('v-foil');
+// Pencil body (horizontal)
+v.appendChild(s.rectangle(40,100,260,35,{...R,fill:'#F4C430',fillStyle:'solid'}));
+// Pencil tip
+v.appendChild(s.polygon([[40,100],[15,117],[40,135]],{...R,fill:'#8B5E3C',fillStyle:'solid'}));
+v.appendChild(s.polygon([[25,110],[15,117],[25,125]],{...R,fill:'#5A6068',fillStyle:'solid',stroke:'#5A6068'}));
+// Stamping die coming down from above
+v.appendChild(s.rectangle(120,25,100,40,{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:4}));
+// Die face (letters reversed)
+v.appendChild(s.rectangle(130,55,80,15,{...R,fill:'#5A6068',fillStyle:'solid'}));
+// Downward arrow (pressing)
+v.appendChild(s.line(170,70,170,95,{stroke:'#D94F4F',strokeWidth:3,roughness:1}));
+v.appendChild(s.line(164,88,170,95,{stroke:'#D94F4F',strokeWidth:2}));
+v.appendChild(s.line(176,88,170,95,{stroke:'#D94F4F',strokeWidth:2}));
+// Stamped text on pencil
+const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+t.setAttribute('x','170');t.setAttribute('y','123');t.setAttribute('text-anchor','middle');
+t.setAttribute('font-family','Caveat,cursive');t.setAttribute('font-size','13');t.setAttribute('font-weight','700');
+t.setAttribute('fill','#8B5E3C');t.textContent='TICONDEROGA No.2';v.appendChild(t);
+// Heat waves around die
+[145,160,175,190].forEach(x=>{
+  v.appendChild(s.line(x,22,x-3,10,{stroke:'#D94F4F',strokeWidth:1,roughness:2,bowing:3}));
+});
+})();
+
+// Foil material: bauxite rock → arrow → aluminum ingot → arrow → thin foil sheet
+(function(){const s=rc('v-foilmat');const v=d('v-foilmat');
+// Bauxite rock (irregular reddish-brown)
+v.appendChild(s.polygon([[30,70],[45,50],[70,45],[85,55],[90,75],[75,85],[40,82]],{...R,fill:'#A0764A',fillStyle:'solid',roughness:2.5}));
+const t1=document.createElementNS('http://www.w3.org/2000/svg','text');
+t1.setAttribute('x','60');t1.setAttribute('y','105');t1.setAttribute('text-anchor','middle');
+t1.setAttribute('font-family','Caveat,cursive');t1.setAttribute('font-size','12');t1.setAttribute('fill','#8B5E3C');
+t1.textContent='bauxite';v.appendChild(t1);
+// Arrow 1
+v.appendChild(s.line(95,68,120,68,{stroke:'#D94F4F',strokeWidth:2,roughness:1}));
+v.appendChild(s.line(114,62,120,68,{stroke:'#D94F4F',strokeWidth:1.5}));
+v.appendChild(s.line(114,74,120,68,{stroke:'#D94F4F',strokeWidth:1.5}));
+// Aluminum ingot (shiny silver bar)
+v.appendChild(s.rectangle(125,50,50,35,{...R,fill:'#D4D0C8',fillStyle:'solid'}));
+v.appendChild(s.polygon([[125,50],[135,40],[185,40],[175,50]],{...R,fill:'#E8E4DC',fillStyle:'solid'}));
+v.appendChild(s.polygon([[175,50],[185,40],[185,75],[175,85]],{...R,fill:'#B0B8C0',fillStyle:'solid'}));
+const t2=document.createElementNS('http://www.w3.org/2000/svg','text');
+t2.setAttribute('x','150');t2.setAttribute('y','105');t2.setAttribute('text-anchor','middle');
+t2.setAttribute('font-family','Caveat,cursive');t2.setAttribute('font-size','12');t2.setAttribute('fill','#5A6068');
+t2.textContent='aluminum';v.appendChild(t2);
+// Arrow 2
+v.appendChild(s.line(190,68,215,68,{stroke:'#D94F4F',strokeWidth:2,roughness:1}));
+v.appendChild(s.line(209,62,215,68,{stroke:'#D94F4F',strokeWidth:1.5}));
+v.appendChild(s.line(209,74,215,68,{stroke:'#D94F4F',strokeWidth:1.5}));
+// Ultra-thin foil (wavy sheet)
+v.appendChild(s.polygon([[220,55],[310,50],[312,58],[222,63]],{fill:'#C5983B',fillStyle:'solid',stroke:'#C5983B',strokeWidth:1.5,roughness:1.5}));
+// Shine highlights
+v.appendChild(s.line(240,54,280,52,{stroke:'#F4C430',strokeWidth:1,roughness:1}));
+v.appendChild(s.line(250,60,290,57,{stroke:'#D4A420',strokeWidth:.8,roughness:1}));
+const t3=document.createElementNS('http://www.w3.org/2000/svg','text');
+t3.setAttribute('x','265');t3.setAttribute('y','105');t3.setAttribute('text-anchor','middle');
+t3.setAttribute('font-family','Caveat,cursive');t3.setAttribute('font-size','12');t3.setAttribute('fill','#C5983B');
+t3.textContent='gold foil';v.appendChild(t3);
+})();
+
+(function(){const s=rc('v-die');
+d('v-die').appendChild(s.rectangle(110,40,120,80,{...R,fill:'#5A6068',fillStyle:'solid'}));
+d('v-die').appendChild(s.rectangle(130,60,80,40,{roughness:1,stroke:'#9CA3AF',strokeWidth:1.5,fill:'#2C2C2C',fillStyle:'solid'}));
+const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+t.setAttribute('x','170');t.setAttribute('y','86');t.setAttribute('text-anchor','middle');
+t.setAttribute('font-family','Caveat,cursive');t.setAttribute('font-size','11');t.setAttribute('fill','#C5983B');
+t.textContent='0.01mm';d('v-die').appendChild(t);
+})();
+
+// Container ship: red hull on water with stacked containers on deck
+(function(){const s=rc('v-ship');const v=d('v-ship');
+// Water
+v.appendChild(s.line(5,190,335,190,{stroke:'#7EB8D4',strokeWidth:2.5,roughness:3,bowing:5}));
+v.appendChild(s.line(5,200,335,200,{stroke:'#7EB8D4',strokeWidth:1.5,roughness:3,bowing:4}));
+v.appendChild(s.line(5,208,335,208,{stroke:'#7EB8D4',strokeWidth:1,roughness:3,bowing:5}));
+// Red hull (below waterline, tapered)
+v.appendChild(s.polygon([[30,145],[55,188],[285,188],[310,145]],{...R,fill:'#D94F4F',fillStyle:'solid'}));
+// Deck line
+v.appendChild(s.line(30,145,310,145,{...R,strokeWidth:2}));
+// Containers stacked on deck — row 1 (bottom, sitting on deck)
+const colors=['#7EB8D4','#F4C430','#5B8C5A','#D94F4F','#9CA3AF','#E8847C','#C5983B','#7EB8D4'];
+let ci=0;
+for(let x=45;x<295;x+=32){
+  v.appendChild(s.rectangle(x,120,30,25,{roughness:1,fill:colors[ci%colors.length],fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1}));
+  ci++;
+}
+// Row 2
+ci=3;
+for(let x=55;x<280;x+=32){
+  v.appendChild(s.rectangle(x,95,30,25,{roughness:1,fill:colors[ci%colors.length],fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1}));
+  ci++;
+}
+// Row 3 (top, fewer)
+ci=5;
+for(let x=70;x<260;x+=32){
+  v.appendChild(s.rectangle(x,70,30,25,{roughness:1,fill:colors[ci%colors.length],fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1}));
+  ci++;
+}
+// Bridge/cabin at back
+v.appendChild(s.rectangle(270,80,35,65,{...R,fill:'#9CA3AF',fillStyle:'solid'}));
+v.appendChild(s.rectangle(275,85,25,15,{roughness:1,fill:'#7EB8D4',fillStyle:'solid',stroke:'#5A6068',strokeWidth:.8}));
+// Smokestack
+v.appendChild(s.rectangle(280,60,15,22,{...R,fill:'#2C2C2C',fillStyle:'solid'}));
+// Smoke puff
+v.appendChild(s.ellipse(295,50,20,12,{stroke:'#9CA3AF',strokeWidth:1,roughness:2,fill:'transparent'}));
+v.appendChild(s.ellipse(305,42,16,10,{stroke:'#9CA3AF',strokeWidth:1,roughness:2,fill:'transparent'}));
+})();
+
+(function(){const s=rc('v-port');
+d('v-port').appendChild(s.rectangle(60,100,220,60,{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:7}));
+d('v-port').appendChild(s.line(170,100,170,20,{...R,strokeWidth:3}));
+d('v-port').appendChild(s.line(130,20,210,20,{...R,strokeWidth:3}));
+d('v-port').appendChild(s.line(210,20,210,60,{stroke:'#C5983B',strokeWidth:1.5,roughness:1}));
+d('v-port').appendChild(s.rectangle(200,60,20,15,{roughness:1,fill:'#7EB8D4',fillStyle:'solid',stroke:'#5A6068',strokeWidth:1}));
+})();
+
+(function(){const s=rc('v-assembly');
+d('v-assembly').appendChild(s.line(30,100,310,100,{...R,strokeWidth:3}));
+[60,120,180,240].forEach((x,i)=>{const c=['#8B5E3C','#F4C430','#C5983B','#E8847C'];
+d('v-assembly').appendChild(s.rectangle(x,70,40,25,{roughness:1.2,fill:c[i],fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.5}));});
+d('v-assembly').appendChild(s.line(50,120,290,120,{stroke:'#D94F4F',strokeWidth:1.5,roughness:2}));
+d('v-assembly').appendChild(s.line(280,114,290,120,{stroke:'#D94F4F',strokeWidth:1.5}));
+d('v-assembly').appendChild(s.line(280,126,290,120,{stroke:'#D94F4F',strokeWidth:1.5}));
+})();
+
+// QC: horizontal pencil with magnifying glass and a small zigzag crack
+(function(){const s=rc('v-sharpen');const v=d('v-sharpen');
+// Pencil body (horizontal)
+v.appendChild(s.rectangle(80,60,180,30,{...R,fill:'#F4C430',fillStyle:'solid'}));
+// Tip
+v.appendChild(s.polygon([[80,60],[55,75],[80,90]],{...R,fill:'#8B5E3C',fillStyle:'solid'}));
+v.appendChild(s.polygon([[68,69],[55,75],[68,81]],{...R,fill:'#5A6068',fillStyle:'solid',stroke:'#5A6068'}));
+// Ferrule + eraser
+v.appendChild(s.rectangle(260,58,14,34,{roughness:1,fill:'#C5983B',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1}));
+v.appendChild(s.rectangle(274,60,12,30,{roughness:1,fill:'#E8847C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1}));
+// Small zigzag crack down the center of the pencil
+v.appendChild(s.line(170,60,168,65,{stroke:'#FFF8F0',strokeWidth:1.5,roughness:.5}));
+v.appendChild(s.line(168,65,173,70,{stroke:'#FFF8F0',strokeWidth:1.5,roughness:.5}));
+v.appendChild(s.line(173,70,167,75,{stroke:'#FFF8F0',strokeWidth:1.5,roughness:.5}));
+v.appendChild(s.line(167,75,172,80,{stroke:'#FFF8F0',strokeWidth:1.5,roughness:.5}));
+v.appendChild(s.line(172,80,169,85,{stroke:'#FFF8F0',strokeWidth:1.5,roughness:.5}));
+v.appendChild(s.line(169,85,171,90,{stroke:'#FFF8F0',strokeWidth:1.5,roughness:.5}));
+// Magnifying glass over the crack
+v.appendChild(s.circle(170,75,40,{stroke:'#5A6068',strokeWidth:2.5,roughness:1.5,fill:'transparent'}));
+v.appendChild(s.line(190,95,215,120,{stroke:'#5A6068',strokeWidth:4,roughness:1}));
+// Check mark
+v.appendChild(s.line(110,110,120,122,{stroke:'#5B8C5A',strokeWidth:3,roughness:1}));
+v.appendChild(s.line(120,122,140,100,{stroke:'#5B8C5A',strokeWidth:3,roughness:1}));
+})();
+
+// Box: front-on view, pencils clipped at box edge using SVG clipPath
+// Box: classic store pencil box with display window showing pencils inside
+(function(){const s=rc('v-box');const v=d('v-box');
+// Box background (full solid cardboard)
+v.appendChild(s.rectangle(60,20,220,160,{...R,fill:'#D4A470',fillStyle:'solid'}));
+// Display window (cutout) — lighter area where you see pencils through
+v.appendChild(s.rectangle(80,45,160,70,{roughness:1.5,fill:'#FFF8F0',fillStyle:'solid',stroke:'#8B5E3C',strokeWidth:1.5}));
+// Pencils visible through the window (lying horizontally in the box)
+[55,68,81,94,107].forEach((y,i)=>{
+  // Yellow pencil body
+  v.appendChild(s.rectangle(85,y,148,10,{roughness:.8,fill:'#F4C430',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.6}));
+  // Tip on left
+  v.appendChild(s.polygon([[85,y],[78,y+5],[85,y+10]],{roughness:.8,fill:'#8B5E3C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.5}));
+  v.appendChild(s.polygon([[82,y+3],[78,y+5],[82,y+7]],{roughness:.5,fill:'#5A6068',fillStyle:'solid',stroke:'#5A6068',strokeWidth:.3}));
+  // Ferrule on right
+  v.appendChild(s.rectangle(233,y-1,8,12,{roughness:.6,fill:'#C5983B',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.5}));
+  // Eraser on far right
+  v.appendChild(s.rectangle(241,y,7,10,{roughness:.6,fill:'#E8847C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.5}));
+});
+// Box outline (drawn on top of everything)
+v.appendChild(s.rectangle(60,20,220,160,{...R,fill:'transparent',strokeWidth:2.5}));
+// Window border (thicker, like a die-cut hole)
+v.appendChild(s.rectangle(80,45,160,70,{roughness:2,fill:'transparent',stroke:'#8B5E3C',strokeWidth:2}));
+// Box label above window
+const t1=document.createElementNS('http://www.w3.org/2000/svg','text');
+t1.setAttribute('x','170');t1.setAttribute('y','38');t1.setAttribute('text-anchor','middle');
+t1.setAttribute('font-family','Caveat,cursive');t1.setAttribute('font-size','14');t1.setAttribute('font-weight','700');
+t1.setAttribute('fill','#8B5E3C');t1.textContent='TICONDEROGA';v.appendChild(t1);
+// Box label below window
+const t2=document.createElementNS('http://www.w3.org/2000/svg','text');
+t2.setAttribute('x','170');t2.setAttribute('y','145');t2.setAttribute('text-anchor','middle');
+t2.setAttribute('font-family','Caveat,cursive');t2.setAttribute('font-size','13');t2.setAttribute('fill','#8B5E3C');
+t2.textContent='No. 2 HB  \u2022  12 count';v.appendChild(t2);
+// Small yellow pencil icon on box
+v.appendChild(s.rectangle(120,155,40,6,{roughness:.8,fill:'#F4C430',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.5}));
+v.appendChild(s.polygon([[120,155],[115,158],[120,161]],{roughness:.5,fill:'#8B5E3C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.3}));
+})();
+
+(function(){const s=rc('v-store');
+d('v-store').appendChild(s.rectangle(70,50,200,110,{...R,fill:'#FFF8F0',fillStyle:'solid'}));
+d('v-store').appendChild(s.rectangle(140,110,60,50,{...R,fill:'#8B5E3C',fillStyle:'solid'}));
+d('v-store').appendChild(s.polygon([[60,50],[170,10],[280,50]],{...R,fill:'#D94F4F',fillStyle:'solid'}));
+d('v-store').appendChild(s.line(90,80,160,80,{...R}));
+d('v-store').appendChild(s.rectangle(100,68,50,10,{roughness:1,fill:'#F4C430',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1}));
+})();
+
+// World map - more accurate continent shapes
+// World map — accurate continents, curvy ocean shipping routes connecting countries
+(function(){const s=rc('v-map');const sv=d('v-map');
+const L={stroke:'#2C2C2C',strokeWidth:1.2,roughness:1.8,fill:'#5B8C5A',fillStyle:'hachure',hachureGap:5,fillWeight:1};
+// Viewbox: 540x280. Mercator-ish projection.
+
+// North America (Alaska through Mexico)
+sv.appendChild(s.path('M18,58 L10,48 18,35 30,28 48,25 55,18 70,15 88,18 105,25 115,22 125,28 130,35 128,42 118,48 125,55 132,48 140,50 148,58 145,65 140,72 135,78 130,82 122,88 115,92 108,95 100,100 92,108 85,112 80,118 75,120 70,118 60,112 52,100 42,92 35,82 28,75 22,68Z',L));
+// Florida peninsula
+sv.appendChild(s.path('M108,95 L112,100 115,108 112,115 108,112 105,105Z',L));
+// Mexico/Central America
+sv.appendChild(s.path('M75,120 L78,125 82,130 80,138 75,142 70,138 65,130Z',L));
+
+// South America
+sv.appendChild(s.path('M80,148 L88,142 98,145 108,148 118,158 125,170 128,185 128,200 125,218 120,232 112,242 105,248 95,250 88,245 82,235 78,220 75,200 72,185 72,170 75,158Z',L));
+
+// Europe (Iberia through Balkans)
+sv.appendChild(s.path('M248,52 L242,45 245,38 250,32 258,28 268,25 278,22 290,22 298,18 305,22 310,28 308,35 302,42 308,48 315,45 318,38 322,35 320,42 312,52 305,55 298,52 292,58 285,60 278,55 272,52 265,55 255,58Z',L));
+// Italy
+sv.appendChild(s.path('M282,58 L285,65 288,72 285,75 282,70 280,62Z',L));
+// UK
+sv.appendChild(s.path('M245,32 L250,28 255,30 258,38 252,42 248,38Z',L));
+// Ireland
+sv.appendChild(s.path('M238,35 L242,32 245,38 240,40Z',L));
+// Scandinavia
+sv.appendChild(s.path('M278,10 L285,8 292,12 298,18 295,25 288,22 282,15Z',L));
+
+// Africa
+sv.appendChild(s.path('M258,78 L265,72 275,68 288,68 298,72 308,78 315,88 318,98 320,112 322,128 320,148 316,165 310,178 302,188 292,195 282,198 272,192 265,182 258,168 255,148 252,130 252,112 255,95Z',L));
+// Madagascar
+sv.appendChild(s.path('M322,172 L326,168 328,178 325,185 320,180Z',L));
+
+// Middle East / Arabian Peninsula
+sv.appendChild(s.path('M318,62 L328,58 338,55 345,60 348,68 345,78 338,85 330,82 322,78 318,72Z',L));
+
+// India + Sri Lanka
+sv.appendChild(s.path('M362,65 L372,60 382,62 388,68 392,78 390,92 385,105 378,112 370,108 365,95 360,82 358,72Z',L));
+sv.appendChild(s.circle(382,118,4,{...L,roughness:1}));
+
+// Russia / Northern Asia (wide band)
+sv.appendChild(s.path('M305,22 L320,15 340,10 365,8 395,8 425,10 452,12 475,18 495,25 505,32 502,38 492,42 478,42 462,38 448,35 432,32 418,35 405,32 392,35 378,32 365,35 350,32 338,35 325,32 315,28Z',L));
+
+// China / East Asia
+sv.appendChild(s.path('M395,32 L408,35 420,38 435,42 450,48 462,55 470,65 475,78 470,88 460,92 448,90 435,85 425,78 418,72 412,65 405,55 398,45Z',L));
+// Korean peninsula
+sv.appendChild(s.path('M462,52 L468,48 470,55 465,60Z',L));
+
+// Japan (3 main islands)
+sv.appendChild(s.path('M478,38 L485,35 490,40 488,48 482,52 478,45Z',L));
+sv.appendChild(s.path('M488,48 L495,45 498,52 495,58 490,55Z',L));
+
+// Southeast Asia (Vietnam, Thailand, Malaysia)
+sv.appendChild(s.path('M425,88 L435,92 440,100 438,110 432,118 425,115 420,108 418,98Z',L));
+
+// Indonesia (island chain)
+sv.appendChild(s.path('M432,128 L440,125 452,128 462,132 470,138 465,142 455,140 445,138 435,135Z',L));
+sv.appendChild(s.path('M470,135 L478,132 485,138 480,142 472,140Z',L));
+
+// Australia
+sv.appendChild(s.path('M442,178 L455,168 472,165 488,168 498,178 505,190 502,205 495,215 482,222 468,225 455,220 448,210 442,198 440,188Z',L));
+// Tasmania
+sv.appendChild(s.circle(488,228,4,{...L,roughness:1}));
+
+// New Zealand
+sv.appendChild(s.path('M518,218 L522,212 524,222 520,228Z',L));
+sv.appendChild(s.path('M520,228 L524,225 526,235 522,238Z',L));
+
+// Greenland
+sv.appendChild(s.path('M138,5 L152,2 165,5 172,12 168,22 158,25 148,20 140,12Z',L));
+
+// ===== CURVY OCEAN TRADE ROUTES (connecting countries to each other) =====
+const routeStyle={fill:'none',stroke:'#F4C430',strokeWidth:1.5};
+function curvyRoute(x1,y1,cx1,cy1,cx2,cy2,x2,y2){
+  const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+  p.setAttribute('d','M'+x1+','+y1+' C'+cx1+','+cy1+' '+cx2+','+cy2+' '+x2+','+y2);
+  p.setAttribute('fill','none');
+  p.setAttribute('stroke','#F4C430');
+  p.setAttribute('stroke-width','1.3');
+  p.setAttribute('stroke-dasharray','5,4');
+  p.setAttribute('opacity','0.55');
+  sv.appendChild(p);
+}
+// USA east coast → Europe (transatlantic)
+curvyRoute(120,85, 160,60, 210,40, 248,48);
+// USA east coast → Brazil
+curvyRoute(110,105, 115,130, 100,148, 92,155);
+// Brazil → West Africa
+curvyRoute(118,158, 150,140, 200,105, 258,85);
+// Europe → Middle East
+curvyRoute(312,50, 318,55, 322,60, 328,62);
+// Middle East → India
+curvyRoute(345,75, 352,72, 360,68, 368,68);
+// India → Southeast Asia
+curvyRoute(388,100, 400,105, 412,102, 422,95);
+// Southeast Asia → China
+curvyRoute(435,92, 440,82, 445,72, 455,60);
+// China → Japan
+curvyRoute(468,58, 472,52, 478,48, 482,42);
+// Southeast Asia → Indonesia
+curvyRoute(432,118, 435,122, 438,126, 440,128);
+// Indonesia → Australia
+curvyRoute(455,140, 455,155, 450,168, 448,178);
+// Chile → around Cape Horn
+curvyRoute(78,240, 60,248, 50,240, 55,220);
+// Chile → USA west coast (Pacific)
+curvyRoute(72,185, 48,155, 35,120, 38,85);
+// Australia → India (Indian Ocean)
+curvyRoute(442,185, 420,175, 398,145, 385,112);
+// West Africa → South Africa
+curvyRoute(262,170, 270,180, 280,190, 288,195);
+// Europe → West Africa
+curvyRoute(255,58, 250,68, 252,78, 258,85);
+// Japan → USA (trans-Pacific, big arc)
+curvyRoute(485,38, 500,20, 60,15, 40,50);
+// Russia → Europe
+curvyRoute(350,15, 335,18, 320,22, 310,28);
+// Middle East → East Africa
+curvyRoute(330,82, 325,100, 320,120, 318,140);
+
+// Red dots at key nodes
+[[120,85],[92,155],[78,240],[258,85],[288,195],[328,62],[368,68],[422,95],[455,60],[482,42],
+ [440,128],[448,178],[248,48],[38,85],[385,112],[310,28],[318,140]].forEach(([x,y])=>{
+  sv.appendChild(s.circle(x,y,4,{fill:'#D94F4F',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.7,roughness:1}));
+});
+})();
+
+// ===== PILL BORDERS =====
+document.querySelectorAll('.pill').forEach(p=>{
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 120 30');
+  svg.style.cssText='position:absolute;inset:-3px;width:calc(100% + 6px);height:calc(100% + 6px);pointer-events:none';
+  p.style.position='relative';
+  const r=rough.svg(svg);
+  svg.appendChild(r.rectangle(1,1,118,28,{roughness:1.8,bowing:1,stroke:'#D4D0C8',strokeWidth:1,fill:'transparent'}));
+  p.appendChild(svg);
+});
+
+// ===== PENCIL NAV (Rough.js canvas, stays sharp, body shrinks) =====
+const pencilCvs=document.getElementById('pencilCanvas');
+const pencilRc=rough.canvas(pencilCvs);
+const PW=72, PH=520; // canvas size
+// Pencil geometry constants (all in canvas coords)
+const TIP_H=40;        // graphite tip height
+const WOOD_H=20;       // exposed wood collar
+const FERRULE_H=28;    // brass band
+const ERASER_H=40;     // pink eraser
+const BODY_MIN=30;     // minimum yellow body when fully used
+const BODY_MAX=300;    // full yellow body at start
+const PX=16;           // pencil left x
+const PWIDTH=40;       // pencil width
+const PMID=PX+PWIDTH/2; // center x
+
+let lastPct=-1;
+function drawPencil(pct){
+  // Only redraw if scroll changed enough
+  const rounded=Math.round(pct*200);
+  if(rounded===lastPct)return;
+  lastPct=rounded;
+
+  const ctx=pencilCvs.getContext('2d');
+  ctx.clearRect(0,0,PW,PH);
+
+  const bodyH=BODY_MAX-(BODY_MAX-BODY_MIN)*pct;
+  let y=10; // start y
+
+  // 1. Graphite tip (always sharp, always at top)
+  pencilRc.polygon([[PMID,y],[PX+4,y+TIP_H],[PX+PWIDTH-4,y+TIP_H]],{
+    fill:'#5A6068',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.5,roughness:1.2
+  });
+  y+=TIP_H;
+
+  // 2. Wood collar (exposed sharpened wood)
+  pencilRc.polygon([
+    [PX+4,y],[PX,y+WOOD_H],[PX+PWIDTH,y+WOOD_H],[PX+PWIDTH-4,y]
+  ],{fill:'#D4A470',fillStyle:'hachure',hachureGap:3,hachureAngle:30,stroke:'#2C2C2C',strokeWidth:1.2,roughness:1.5});
+  y+=WOOD_H;
+
+  // 3. Yellow body (shrinks as scroll progresses)
+  if(bodyH>2){
+    pencilRc.rectangle(PX,y,PWIDTH,bodyH,{
+      fill:'#F4C430',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.2,roughness:1.8,fillWeight:1
+    });
+    // Pencil text
+    if(bodyH>60){
+      ctx.save();
+      ctx.font='bold 9px Caveat, cursive';
+      ctx.fillStyle='#8B5E3C';
+      ctx.textAlign='center';
+      ctx.translate(PMID,y+bodyH/2);
+      ctx.rotate(-Math.PI/2);
+      ctx.fillText('No. 2',0,3);
+      ctx.restore();
+    }
+  }
+  y+=bodyH;
+
+  // 4. Ferrule (brass band)
+  pencilRc.rectangle(PX-2,y,PWIDTH+4,FERRULE_H,{
+    fill:'#C5983B',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.2,roughness:1.5
+  });
+  // Ferrule grooves
+  for(let gy=y+5;gy<y+FERRULE_H-3;gy+=5){
+    pencilRc.line(PX,gy,PX+PWIDTH,gy,{stroke:'#8B6914',strokeWidth:0.6,roughness:1});
+  }
+  y+=FERRULE_H;
+
+  // 5. Eraser
+  pencilRc.rectangle(PX,y,PWIDTH,ERASER_H,{
+    fill:'#E8847C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.2,roughness:1.8
+  });
+  // Eraser rounded bottom
+  pencilRc.arc(PMID,y+ERASER_H,PWIDTH,16,0,Math.PI,true,{
+    fill:'#E8847C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.2,roughness:1.5
+  });
+}
+
+// Initial draw
+drawPencil(0);
+
+// ===== SCROLL =====
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement.scrollHeight-window.innerHeight;
+  const pct=Math.min(window.scrollY/h,1);
+  document.getElementById('prog').style.width=(pct*100)+'%';
+  drawPencil(pct);
+});
+
+document.querySelectorAll('.reveal').forEach(el=>{
+  ScrollTrigger.create({trigger:el,start:'top 90%',onEnter:()=>el.classList.add('vis'),once:true});
+  // Handle elements already in view on page load
+  if(el.getBoundingClientRect().top < window.innerHeight * 0.9) el.classList.add('vis');
+});
+
+sections.forEach((s,i)=>{
+  ScrollTrigger.create({
+    trigger:s,start:'top center',end:'bottom center',
+    onEnter:()=>setDepth(i),
+    onEnterBack:()=>setDepth(i)
+  });
+});
+function setDepth(i){document.getElementById('depthNum').textContent=i+1}
+
+ScrollTrigger.create({trigger:sections[2],start:'top 80%',onEnter:()=>document.getElementById('hint').classList.add('gone')});
+
+let counted=false;
+ScrollTrigger.create({
+  trigger:'[data-step="41"]',start:'top 70%',
+  onEnter:()=>{
+    if(counted)return;counted=true;
+    document.querySelectorAll('.big-num[data-count]').forEach(n=>{
+      const target=+n.dataset.count,suffix=n.dataset.suffix||'',dur=target>1000?2500:1500,st=performance.now();
+      (function tick(now){
+        const p=Math.min((now-st)/dur,1),e=1-Math.pow(1-p,3),c=Math.round(e*target);
+        n.textContent=target>=1e6?(c/1e6).toFixed(c<target?1:0)+'M'+suffix:c.toLocaleString()+suffix;
+        if(p<1)requestAnimationFrame(tick);
+      })(performance.now());
+    });
+  }
+});
+
+gsap.from('#hero .s-vis',{opacity:0,y:20,duration:.8,ease:'power2.out',delay:.3});
+gsap.to('#heroTitle',{opacity:1,y:0,duration:.7,delay:.5,ease:'power2.out'});
+gsap.to('#heroText',{opacity:1,y:0,duration:.7,delay:.8,ease:'power2.out'});
+gsap.from('#v-map',{opacity:0,scale:.88,duration:1,ease:'power2.out',scrollTrigger:{trigger:'#v-map',start:'top 85%'}});
+
+// ===== GAME 1: CHOP THE TREE =====
+(function(){
+  const area=document.getElementById('treeClickArea');
+  const svg=document.getElementById('v-tree');
+  const topG=document.getElementById('treeTop');
+  const notchG=document.getElementById('treeNotch');
+  const prompt=document.getElementById('treePrompt');
+  const counter=document.getElementById('chopCount');
+  let chops=0;const maxChops=6;let done=false;
+  // Cut point on the trunk
+  const cutY=250;const cutW=30; // trunk width
+  const cutX=155;
+  function drawNotch(){
+    // Clear old notch
+    while(notchG.firstChild)notchG.removeChild(notchG.firstChild);
+    const rc2=rough.svg(svg);
+    // Wedge grows deeper with each chop — triangular notch from the right side
+    const depth=chops*(cutW*0.9/maxChops); // max depth nearly through the trunk
+    const halfH=4+chops*3; // notch gets taller too
+    // V-shaped notch (cream colored to look like cut wood)
+    notchG.appendChild(rc2.polygon([
+      [cutX+cutW,cutY-halfH],
+      [cutX+cutW-depth,cutY],
+      [cutX+cutW,cutY+halfH]
+    ],{fill:'#FFF8F0',fillStyle:'solid',stroke:'#D4A470',strokeWidth:1.5,roughness:1.5}));
+    // Wood grain lines inside notch
+    if(chops>1){
+      for(let i=1;i<chops;i++){
+        const d2=i*(cutW*0.9/maxChops);
+        notchG.appendChild(rc2.line(cutX+cutW-d2+2,cutY-halfH+4,cutX+cutW-d2+2,cutY+halfH-4,
+          {stroke:'#D4A470',strokeWidth:.8,roughness:1}));
+      }
+    }
+    // Sawdust chips falling
+    for(let i=0;i<chops;i++){
+      const cx=cutX+cutW+5+Math.random()*20;
+      const cy=cutY+halfH+Math.random()*15;
+      notchG.appendChild(rc2.rectangle(cx,cy,3+Math.random()*4,2+Math.random()*2,
+        {fill:'#D4A470',fillStyle:'solid',stroke:'#8B5E3C',strokeWidth:.5,roughness:1}));
+    }
+  }
+  area.addEventListener('click',function(){
+    if(done)return;
+    chops++;
+    counter.textContent=chops+' / '+maxChops;
+    // Shake the tree top
+    gsap.fromTo(topG,{x:-3},{x:3,duration:.04,repeat:4,yoyo:true,onComplete:()=>gsap.set(topG,{x:0})});
+    // Draw growing notch
+    drawNotch();
+    if(chops>=maxChops){
+      done=true;
+      prompt.classList.add('done');
+      prompt.textContent='timber!';
+      counter.textContent='';
+      area.classList.add('game-done');
+      // Clear the wedge notch
+      while(notchG.firstChild)notchG.removeChild(notchG.firstChild);
+      // Clip the SVG so the falling top disappears at the edge
+      svg.style.overflow='hidden';
+      // Only the top falls — rotate from the cut point, tips to the right
+      gsap.to(topG,{
+        rotation:85,
+        transformOrigin:(cutX+cutW/2)+'px '+cutY+'px',
+        duration:1.2,
+        ease:'power2.in',
+        onComplete:()=>{gsap.to(topG,{opacity:0,duration:.5})}
+      });
+    }
+  });
+})();
+
+// ===== GAME 2: CLAY RATIO SLIDER =====
+(function(){
+  const slider=document.getElementById('claySlider');
+  const grade=document.getElementById('clayGrade');
+  const canvas=document.getElementById('clayStroke');
+  const ctx=canvas.getContext('2d');
+  const grades=['9B','8B','7B','6B','5B','4B','3B','2B','B','HB','H','2H','3H','4H','5H','6H','7H','8H','9H'];
+  function update(){
+    const val=+slider.value;
+    const idx=Math.round(val/100*(grades.length-1));
+    grade.textContent=grades[idx];
+    // Draw a stroke showing how dark/light
+    ctx.clearRect(0,0,200,30);
+    const darkness=1-(val/100);
+    ctx.strokeStyle='rgba(44,44,44,'+(.1+darkness*.9)+')';
+    ctx.lineWidth=2+darkness*6;
+    ctx.lineCap='round';
+    ctx.beginPath();
+    for(let x=10;x<190;x+=3){
+      ctx.lineTo(x,15+Math.random()*6-3);
+    }
+    ctx.stroke();
+  }
+  slider.addEventListener('input',update);
+  update();
+})();
+
+// ===== GAME 3: BELLOWS PUMPING =====
+(function(){
+  const btn=document.getElementById('bellowsBtn');
+  const fill=document.getElementById('bellowsFill');
+  const bg=document.getElementById('bellowsBg');
+  const display=document.getElementById('tempDisplay');
+  const prompt=document.getElementById('bellowsPrompt');
+  const result=document.getElementById('bellowsResult');
+  // Draw rough borders on meter
+  const meterEl=document.getElementById('bellowsMeter');
+  const mSvg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  mSvg.setAttribute('viewBox','0 0 200 16');
+  mSvg.style.cssText='position:absolute;inset:-2px;width:calc(100% + 4px);height:calc(100% + 4px);pointer-events:none;z-index:2';
+  const mRc=rough.svg(mSvg);
+  mSvg.appendChild(mRc.rectangle(1,1,198,14,{roughness:1.5,stroke:'#2C2C2C',strokeWidth:1.2,fill:'transparent'}));
+  meterEl.appendChild(mSvg);
+  // Draw rough border on button
+  const bSvg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  bSvg.setAttribute('viewBox','0 0 100 40');
+  bSvg.style.cssText='position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);pointer-events:none';
+  btn.style.position='relative';
+  const bRc=rough.svg(bSvg);
+  bSvg.appendChild(bRc.rectangle(2,2,96,36,{roughness:2,stroke:'#2C2C2C',strokeWidth:1.5,fill:'transparent'}));
+  btn.appendChild(bSvg);
+
+  let temp=0;let done=false;
+  let coolInterval=setInterval(()=>{
+    if(!done&&temp>0){temp=Math.max(0,temp-8);updateTemp();}
+  },200);
+  function updateTemp(){
+    fill.style.width=Math.min(temp/1000*100,100)+'%';
+    display.textContent=Math.round(temp)+'\u00B0C';
+    if(temp>=1000&&!done){
+      done=true;
+      clearInterval(coolInterval);
+      prompt.classList.add('done');
+      result.classList.add('show');
+      fill.style.background='#F4C430';
+      // Flash the kiln SVG
+      gsap.fromTo('#v-fire',{opacity:.6},{opacity:1,duration:.3,repeat:3,yoyo:true});
+    }
+  }
+  btn.addEventListener('click',function(){
+    if(done)return;
+    temp=Math.min(temp+65,1050);
+    updateTemp();
+    // Pump animation
+    gsap.fromTo(btn,{scale:1},{scale:.9,duration:.05,yoyo:true,repeat:1});
+  });
+})();
+
+// ===== GAME 4: LACQUER COATS =====
+(function(){
+  const canvas=document.getElementById('lacquerPencil');
+  const ctx=canvas.getContext('2d');
+  const prompt=document.getElementById('lacquerPrompt');
+  const counter=document.getElementById('lacquerCount');
+  let coats=0;const maxCoats=8;
+  function drawLacquerPencil(){
+    ctx.clearRect(0,0,280,60);
+    const rc2=rough.canvas(canvas);
+    // Pencil body — gets more saturated/shiny with more coats
+    const alpha=.3+coats*.09;
+    const color='rgba(244,196,48,'+alpha+')';
+    rc2.rectangle(50,15,180,30,{fill:color,fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.5,roughness:1.5-coats*.1});
+    // Tip
+    rc2.polygon([[50,15],[30,30],[50,45]],{fill:'#8B5E3C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.2,roughness:1.2});
+    rc2.polygon([[40,24],[30,30],[40,36]],{fill:'#5A6068',fillStyle:'solid',stroke:'#5A6068',strokeWidth:1,roughness:1});
+    // Ferrule + eraser
+    rc2.rectangle(230,13,16,34,{fill:'#C5983B',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1,roughness:1});
+    rc2.rectangle(246,15,14,30,{fill:'#E8847C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1,roughness:1});
+    // Sheen lines (appear as more coats are added)
+    if(coats>3){
+      ctx.strokeStyle='rgba(255,255,255,'+(coats-3)*.12+')';
+      ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(70,22);ctx.lineTo(210,22);ctx.stroke();
+    }
+    if(coats>5){
+      ctx.beginPath();ctx.moveTo(80,28);ctx.lineTo(200,28);ctx.stroke();
+    }
+  }
+  drawLacquerPencil();
+  canvas.addEventListener('click',function(){
+    if(coats>=maxCoats)return;
+    coats++;
+    counter.textContent='coat '+coats+' of '+maxCoats;
+    // Flash effect
+    gsap.fromTo(canvas,{opacity:.7},{opacity:1,duration:.2});
+    drawLacquerPencil();
+    if(coats>=maxCoats){
+      prompt.classList.add('done');
+      prompt.textContent='fully coated';
+      counter.textContent='';
+      canvas.parentElement.classList.add('game-done');
+    }
+  });
+})();
+
+// ===== GAME 5: RUBBER TAPPING =====
+(function(){
+  const area=document.getElementById('rubberClickArea');
+  const svg=document.getElementById('v-rubber');
+  const prompt=document.getElementById('rubberPrompt');
+  const result=document.getElementById('rubberResult');
+  let cuts=0;let done=false;
+  area.addEventListener('click',function(){
+    if(done)return;
+    cuts++;
+    const rc2=rough.svg(svg);
+    // Add a diagonal cut on the trunk
+    const cy=160+cuts*18;
+    svg.appendChild(rc2.line(175,cy,200,cy+20,{stroke:'#D94F4F',strokeWidth:2.5,roughness:1}));
+    // Drip from cut
+    setTimeout(()=>{
+      svg.appendChild(rc2.circle(202,cy+24,4,{fill:'#FFF8F0',fillStyle:'solid',stroke:'#D4D0C8',strokeWidth:.8,roughness:1}));
+    },300);
+    if(cuts>=4){
+      done=true;
+      prompt.classList.add('done');
+      result.classList.add('show');
+      area.classList.add('game-done');
+      // Fill the bucket
+      setTimeout(()=>{
+        svg.appendChild(rc2.rectangle(186,232,18,14,{fill:'#FFF8F0',fillStyle:'solid',stroke:'#D4D0C8',strokeWidth:1,roughness:1}));
+      },600);
+    }
+  });
+})();
+
+// ===== GAME 6: ASSEMBLE THE PENCIL =====
+(function(){
+  const canvas=document.getElementById('assemblyCanvas');
+  const ctx=canvas.getContext('2d');
+  const prompt=document.getElementById('assemblyPrompt');
+  const result=document.getElementById('assemblyResult');
+  let step=0;const steps=['slat','core','slat','paint','ferrule','eraser'];
+  const labels=['place bottom slat','lay graphite core','glue top slat','paint it yellow','add ferrule','add eraser'];
+  const rc2=rough.canvas(canvas);
+  function drawAssembly(){
+    ctx.clearRect(0,0,320,100);
+    const y=35;
+    // Bottom slat
+    if(step>=1) rc2.rectangle(30,y,220,16,{fill:'#D4A470',fillStyle:'hachure',hachureGap:4,hachureAngle:0,stroke:'#8B5E3C',strokeWidth:1.2,roughness:1.2});
+    // Graphite core
+    if(step>=2) rc2.rectangle(40,y+4,200,8,{fill:'#5A6068',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.8,roughness:1});
+    // Top slat
+    if(step>=3) rc2.rectangle(30,y-16,220,16,{fill:'#D4A470',fillStyle:'hachure',hachureGap:4,hachureAngle:0,stroke:'#8B5E3C',strokeWidth:1.2,roughness:1.2});
+    // Paint
+    if(step>=4){
+      rc2.rectangle(28,y-18,224,36,{fill:'#F4C430',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.5,roughness:1.5});
+      // Tip
+      rc2.polygon([[28,y-18],[10,y],[28,y+18]],{fill:'#8B5E3C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.2,roughness:1});
+      rc2.polygon([[18,y-6],[10,y],[18,y+6]],{fill:'#5A6068',fillStyle:'solid',stroke:'#5A6068',roughness:.8});
+    }
+    // Ferrule
+    if(step>=5) rc2.rectangle(252,y-20,18,40,{fill:'#C5983B',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.2,roughness:1});
+    // Eraser
+    if(step>=6) rc2.rectangle(270,y-18,16,36,{fill:'#E8847C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.2,roughness:1});
+  }
+  drawAssembly();
+  prompt.textContent=labels[0];
+  canvas.style.cursor='pointer';
+  canvas.addEventListener('click',function(){
+    if(step>=6)return;
+    step++;
+    gsap.fromTo(canvas,{opacity:.7},{opacity:1,duration:.2});
+    drawAssembly();
+    if(step<6){
+      prompt.textContent=labels[step];
+    }else{
+      prompt.classList.add('done');
+      prompt.textContent='done';
+      result.classList.add('show');
+      canvas.parentElement.classList.add('game-done');
+    }
+  });
+})();
+</script>
+</body>
+</html>
