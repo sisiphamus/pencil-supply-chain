@@ -1219,12 +1219,30 @@ t2.setAttribute('font-family','Caveat,cursive');t2.setAttribute('font-size','12'
 t2.textContent='ferrule';v.appendChild(t2);
 })();
 
-(function(){const s=rc('v-rubber');
-d('v-rubber').appendChild(s.rectangle(145,140,30,140,{...R,fill:'#8B5E3C',fillStyle:'hachure',hachureGap:5}));
-d('v-rubber').appendChild(s.ellipse(160,125,140,100,{...R,fill:'#5B8C5A',fillStyle:'hachure',hachureGap:5,fillWeight:1.5}));
-d('v-rubber').appendChild(s.line(175,190,195,230,{stroke:'#D94F4F',strokeWidth:3,roughness:1}));
-d('v-rubber').appendChild(s.rectangle(185,230,20,16,{...R,fill:'#9CA3AF',fillStyle:'solid'}));
-d('v-rubber').appendChild(s.circle(195,254,5,{fill:'#FFF8F0',fillStyle:'solid',stroke:'#D4D0C8',roughness:1}));
+// Rubber tree: trunk, canopy, bucket at ground, drip spout on trunk
+(function(){const s=rc('v-rubber');const v=d('v-rubber');
+// Ground
+v.appendChild(s.line(40,280,300,280,{...R,roughness:2.5}));
+// Trunk (tall, slightly wider)
+v.appendChild(s.rectangle(140,100,40,180,{...R,fill:'#8B5E3C',fillStyle:'hachure',hachureGap:5}));
+// Canopy
+v.appendChild(s.ellipse(160,90,160,100,{...R,fill:'#5B8C5A',fillStyle:'hachure',hachureGap:5,fillWeight:1.5}));
+v.appendChild(s.ellipse(160,55,100,65,{...R,fill:'#5B8C5A',fillStyle:'cross-hatch',hachureGap:6,fillWeight:1}));
+// Small spout/channel nailed to trunk (angled down to guide drips into bucket)
+v.appendChild(s.line(180,210,205,230,{stroke:'#9CA3AF',strokeWidth:2.5,roughness:1}));
+v.appendChild(s.line(180,214,205,234,{stroke:'#9CA3AF',strokeWidth:2.5,roughness:1}));
+// Bucket on the ground below the spout
+v.appendChild(s.polygon([[195,240],[190,275],[225,275],[220,240]],{...R,fill:'#9CA3AF',fillStyle:'hachure',hachureGap:5}));
+// Bucket handle
+v.appendChild(s.arc(207,240,20,15,Math.PI,0,false,{stroke:'#5A6068',strokeWidth:1.5,roughness:1.5}));
+// Group for cuts (game adds these)
+const cutG=document.createElementNS('http://www.w3.org/2000/svg','g');
+cutG.id='rubberCuts';
+v.appendChild(cutG);
+// Group for bucket fill (game fills this)
+const fillG=document.createElementNS('http://www.w3.org/2000/svg','g');
+fillG.id='rubberFill';
+v.appendChild(fillG);
 })();
 
 // Vulcanization: cauldron/vat over fire with rubber + sulfur
@@ -2005,29 +2023,59 @@ gsap.from('#v-map',{opacity:0,scale:.88,duration:1,ease:'power2.out',scrollTrigg
 (function(){
   const area=document.getElementById('rubberClickArea');
   const svg=document.getElementById('v-rubber');
+  const cutG=document.getElementById('rubberCuts');
+  const fillG=document.getElementById('rubberFill');
   const prompt=document.getElementById('rubberPrompt');
   const result=document.getElementById('rubberResult');
-  let cuts=0;let done=false;
+  let cuts=0;const maxCuts=5;let done=false;
+  // Fixed cut positions on the trunk (evenly spaced, diagonal, no overlap)
+  const cutPositions=[
+    {y:150,x1:180,x2:168,y2:162},
+    {y:168,x1:180,x2:166,y2:180},
+    {y:186,x1:180,x2:164,y2:198},
+    {y:204,x1:180,x2:162,y2:216},
+    {y:222,x1:180,x2:160,y2:234}
+  ];
+  // Bucket interior: y=242 to y=273, x=193 to x=222
+  function fillBucket(){
+    while(fillG.firstChild)fillG.removeChild(fillG.firstChild);
+    const rc2=rough.svg(svg);
+    if(cuts<=0)return;
+    // Fill height proportional to cuts
+    const maxH=30;
+    const h=Math.round((cuts/maxCuts)*maxH);
+    const fy=273-h;
+    fillG.appendChild(rc2.rectangle(194,fy,26,h,{
+      fill:'#FFF8F0',fillStyle:'solid',stroke:'transparent',roughness:1
+    }));
+    // Meniscus line at top
+    fillG.appendChild(rc2.line(194,fy,220,fy,{stroke:'#D4D0C8',strokeWidth:1,roughness:1.5}));
+  }
   area.addEventListener('click',function(){
     if(done)return;
-    cuts++;
+    if(cuts>=maxCuts)return;
+    const pos=cutPositions[cuts];
     const rc2=rough.svg(svg);
-    // Add a diagonal cut on the trunk
-    const cy=160+cuts*18;
-    svg.appendChild(rc2.line(175,cy,200,cy+20,{stroke:'#D94F4F',strokeWidth:2.5,roughness:1}));
-    // Drip from cut
-    setTimeout(()=>{
-      svg.appendChild(rc2.circle(202,cy+24,4,{fill:'#FFF8F0',fillStyle:'solid',stroke:'#D4D0C8',strokeWidth:.8,roughness:1}));
-    },300);
-    if(cuts>=4){
+    // Diagonal cut mark on trunk (clean V-groove)
+    cutG.appendChild(rc2.line(pos.x1,pos.y,pos.x2,pos.y2,{stroke:'#D4A470',strokeWidth:3,roughness:1.2}));
+    cutG.appendChild(rc2.line(pos.x1,pos.y+3,pos.x2+2,pos.y2+1,{stroke:'#FFF8F0',strokeWidth:1.5,roughness:1}));
+    // Drip animation: small white drop falls from cut to bucket
+    const drip=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    drip.setAttribute('cx','205');drip.setAttribute('cy',String(pos.y2+5));
+    drip.setAttribute('r','3');drip.setAttribute('fill','#FFF8F0');drip.setAttribute('stroke','#D4D0C8');drip.setAttribute('stroke-width','0.5');
+    svg.appendChild(drip);
+    gsap.to(drip,{attr:{cy:242},duration:.6,ease:'power2.in',onComplete:()=>{drip.remove()}});
+    cuts++;
+    // Fill bucket
+    setTimeout(()=>fillBucket(),650);
+    if(cuts>=maxCuts){
       done=true;
-      prompt.classList.add('done');
-      result.classList.add('show');
-      area.classList.add('game-done');
-      // Fill the bucket
       setTimeout(()=>{
-        svg.appendChild(rc2.rectangle(186,232,18,14,{fill:'#FFF8F0',fillStyle:'solid',stroke:'#D4D0C8',strokeWidth:1,roughness:1}));
-      },600);
+        prompt.classList.add('done');
+        prompt.textContent='bucket full';
+        result.classList.add('show');
+        area.classList.add('game-done');
+      },700);
     }
   });
 })();
