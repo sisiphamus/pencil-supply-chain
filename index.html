@@ -1937,11 +1937,18 @@ gsap.from('#v-map',{opacity:0,scale:.88,duration:1,ease:'power2.out',scrollTrigg
   btn.appendChild(bSvg);
 
   let temp=0;let done=false;
-  // Cooling: runs every 50ms. Cools FASTER the hotter it gets — exponential heat loss.
-  // At 0C: loses ~5C/tick. At 500C: ~20C/tick. At 900C: ~40C/tick. Brutal.
+  // Cooling: exponential curve. Trivially easy at the start, physically impossible near the end.
+  // Uses (temp/1000)^4 — so:
+  //   At 100C: loss = 0.0001 * 800 = 0.08C/tick  (basically nothing)
+  //   At 300C: loss = 0.0081 * 800 = 6.5C/tick    (gentle)
+  //   At 500C: loss = 0.0625 * 800 = 50C/tick     (getting hard)
+  //   At 700C: loss = 0.24 * 800 = 192C/tick      (very hard)
+  //   At 800C: loss = 0.41 * 800 = 328C/tick      (insane)
+  //   At 900C: loss = 0.66 * 800 = 528C/tick      (impossible)
   let coolInterval=setInterval(()=>{
     if(!done&&temp>0){
-      const loss=5+temp*0.04;
+      const ratio=temp/1000;
+      const loss=Math.pow(ratio,4)*800;
       temp=Math.max(0,temp-loss);
       updateTemp();
     }
@@ -1949,11 +1956,12 @@ gsap.from('#v-map',{opacity:0,scale:.88,duration:1,ease:'power2.out',scrollTrigg
   function updateTemp(){
     fill.style.width=Math.min(temp/1000*100,100)+'%';
     display.textContent=Math.round(temp)+'\u00B0C';
-    // Color shifts: red → orange → yellow as it heats up
-    if(temp<400) fill.style.background='#D94F4F';
-    else if(temp<700) fill.style.background='#E87030';
-    else if(temp<900) fill.style.background='#F4A020';
-    else fill.style.background='#F4C430';
+    // Color shifts: red → orange → yellow
+    if(temp<300) fill.style.background='#D94F4F';
+    else if(temp<500) fill.style.background='#E87030';
+    else if(temp<700) fill.style.background='#F4A020';
+    else if(temp<850) fill.style.background='#F4C430';
+    else fill.style.background='#FFFACD';
     if(temp>=1000&&!done){
       done=true;
       clearInterval(coolInterval);
@@ -1963,10 +1971,10 @@ gsap.from('#v-map',{opacity:0,scale:.88,duration:1,ease:'power2.out',scrollTrigg
       gsap.fromTo('#v-fire',{opacity:.6},{opacity:1,duration:.3,repeat:3,yoyo:true});
     }
   }
-  // Each click only adds 18C — you need to click FAST
+  // Each click adds 25C — feels generous at first, meaningless at 800+
   btn.addEventListener('click',function(){
     if(done)return;
-    temp=Math.min(temp+18,1050);
+    temp=Math.min(temp+25,1050);
     updateTemp();
     gsap.fromTo(btn,{scale:1},{scale:.88,duration:.04,yoyo:true,repeat:1});
   });
