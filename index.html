@@ -1504,40 +1504,38 @@ v.appendChild(s.line(120,122,140,100,{stroke:'#5B8C5A',strokeWidth:3,roughness:1
 
 // Box: front-on view, pencils clipped at box edge using SVG clipPath
 // Box: classic store pencil box with display window showing pencils inside
+// Box: front-on, pencils standing vertically, only erasers + ferrules + bit of yellow visible
 (function(){const s=rc('v-box');const v=d('v-box');
-// Box background (full solid cardboard)
-v.appendChild(s.rectangle(60,20,220,160,{...R,fill:'#D4A470',fillStyle:'solid'}));
-// Display window (cutout) — lighter area where you see pencils through
-v.appendChild(s.rectangle(80,45,160,70,{roughness:1.5,fill:'#FFF8F0',fillStyle:'solid',stroke:'#8B5E3C',strokeWidth:1.5}));
-// Pencils visible through the window (lying horizontally in the box)
-[55,68,81,94,107].forEach((y,i)=>{
-  // Yellow pencil body
-  v.appendChild(s.rectangle(85,y,148,10,{roughness:.8,fill:'#F4C430',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.6}));
-  // Tip on left
-  v.appendChild(s.polygon([[85,y],[78,y+5],[85,y+10]],{roughness:.8,fill:'#8B5E3C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.5}));
-  v.appendChild(s.polygon([[82,y+3],[78,y+5],[82,y+7]],{roughness:.5,fill:'#5A6068',fillStyle:'solid',stroke:'#5A6068',strokeWidth:.3}));
-  // Ferrule on right
-  v.appendChild(s.rectangle(233,y-1,8,12,{roughness:.6,fill:'#C5983B',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.5}));
-  // Eraser on far right
-  v.appendChild(s.rectangle(241,y,7,10,{roughness:.6,fill:'#E8847C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.5}));
-});
-// Box outline (drawn on top of everything)
-v.appendChild(s.rectangle(60,20,220,160,{...R,fill:'transparent',strokeWidth:2.5}));
-// Window border (thicker, like a die-cut hole)
-v.appendChild(s.rectangle(80,45,160,70,{roughness:2,fill:'transparent',stroke:'#8B5E3C',strokeWidth:2}));
-// Box label above window
+// Box body (cardboard, front-on)
+v.appendChild(s.rectangle(60,60,220,120,{...R,fill:'#D4A470',fillStyle:'solid'}));
+// Box front label
 const t1=document.createElementNS('http://www.w3.org/2000/svg','text');
-t1.setAttribute('x','170');t1.setAttribute('y','38');t1.setAttribute('text-anchor','middle');
-t1.setAttribute('font-family','Caveat,cursive');t1.setAttribute('font-size','14');t1.setAttribute('font-weight','700');
+t1.setAttribute('x','170');t1.setAttribute('y','140');t1.setAttribute('text-anchor','middle');
+t1.setAttribute('font-family','Caveat,cursive');t1.setAttribute('font-size','15');t1.setAttribute('font-weight','700');
 t1.setAttribute('fill','#8B5E3C');t1.textContent='TICONDEROGA';v.appendChild(t1);
-// Box label below window
 const t2=document.createElementNS('http://www.w3.org/2000/svg','text');
-t2.setAttribute('x','170');t2.setAttribute('y','145');t2.setAttribute('text-anchor','middle');
-t2.setAttribute('font-family','Caveat,cursive');t2.setAttribute('font-size','13');t2.setAttribute('fill','#8B5E3C');
-t2.textContent='No. 2 HB  \u2022  12 count';v.appendChild(t2);
-// Small yellow pencil icon on box
-v.appendChild(s.rectangle(120,155,40,6,{roughness:.8,fill:'#F4C430',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.5}));
-v.appendChild(s.polygon([[120,155],[115,158],[120,161]],{roughness:.5,fill:'#8B5E3C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.3}));
+t2.setAttribute('x','170');t2.setAttribute('y','158');t2.setAttribute('text-anchor','middle');
+t2.setAttribute('font-family','Caveat,cursive');t2.setAttribute('font-size','12');
+t2.setAttribute('fill','#8B5E3C');t2.textContent='No. 2 HB  \u2022  12 count';v.appendChild(t2);
+// Box outline
+v.appendChild(s.rectangle(60,60,220,120,{...R,fill:'transparent',strokeWidth:2.5}));
+// Inner rim at top of box (the opening)
+v.appendChild(s.line(65,60,275,60,{stroke:'#8B5E3C',strokeWidth:2.5,roughness:1.5}));
+// Pencils standing vertically — tops poking out above the box
+// Only eraser (top) + ferrule + small bit of yellow visible above box rim at y=60
+[85,100,115,130,145,160,175,190,205,220,235,250].forEach((x,i)=>{
+  const stickUp=18+Math.random()*8; // how much pokes above box top
+  const bodyShow=8+Math.random()*4; // yellow visible
+  const ferrH=6;
+  const erasH=8;
+  const topY=60-stickUp;
+  // Yellow body (just the bit above the box rim)
+  v.appendChild(s.rectangle(x,60-bodyShow,10,bodyShow,{roughness:.8,fill:'#F4C430',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.6}));
+  // Ferrule
+  v.appendChild(s.rectangle(x-1,60-bodyShow-ferrH,12,ferrH,{roughness:.7,fill:'#C5983B',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.6}));
+  // Eraser (rounded top)
+  v.appendChild(s.rectangle(x,60-bodyShow-ferrH-erasH,10,erasH,{roughness:.8,fill:'#E8847C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:.6}));
+});
 })();
 
 (function(){const s=rc('v-store');
