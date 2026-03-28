@@ -888,25 +888,28 @@ notchG.id='treeNotch';
 v.appendChild(notchG);
 })();
 
-// Logger: tree stump with axe embedded in it
+// Logger: tree stump with large axe embedded in it
 (function(){const s=rc('v-log');const v=d('v-log');
 // Ground
 v.appendChild(s.line(30,170,310,170,{...R,roughness:2.5}));
+// Fallen log behind
+v.appendChild(s.rectangle(20,85,130,22,{...R,fill:'#8B5E3C',fillStyle:'hachure',hachureGap:5}));
+v.appendChild(s.ellipse(20,96,22,22,{...R,fill:'#D4A470',fillStyle:'hachure',hachureGap:3,hachureAngle:45}));
 // Stump
-v.appendChild(s.rectangle(120,110,100,60,{...R,fill:'#8B5E3C',fillStyle:'hachure',hachureGap:5}));
-v.appendChild(s.ellipse(170,110,100,25,{...R,fill:'#D4A470',fillStyle:'hachure',hachureGap:3,hachureAngle:45}));
-// Tree rings on stump top
-v.appendChild(s.ellipse(170,110,60,14,{stroke:'#8B5E3C',strokeWidth:1,roughness:1.5}));
-v.appendChild(s.ellipse(170,110,30,8,{stroke:'#8B5E3C',strokeWidth:1,roughness:1.5}));
-// Axe handle (diagonal)
-v.appendChild(s.line(200,60,250,150,{...R,strokeWidth:3.5,stroke:'#8B5E3C'}));
-// Axe head (wedged into stump)
-v.appendChild(s.polygon([[195,58],[185,45],[210,40],[215,55]],{...R,fill:'#9CA3AF',fillStyle:'solid'}));
-// Wood chips around stump
-[90,140,210,260].forEach(x=>v.appendChild(s.rectangle(x,160+Math.random()*8,12+Math.random()*8,4,{roughness:1.5,fill:'#D4A470',fillStyle:'solid',stroke:'#8B5E3C',strokeWidth:.8})));
-// Fallen tree behind
-v.appendChild(s.line(20,95,130,95,{...R,strokeWidth:8,stroke:'#8B5E3C'}));
-v.appendChild(s.ellipse(20,95,20,20,{...R,fill:'#D4A470',fillStyle:'hachure',hachureGap:3}));
+v.appendChild(s.rectangle(180,105,80,65,{...R,fill:'#8B5E3C',fillStyle:'hachure',hachureGap:5}));
+v.appendChild(s.ellipse(220,105,80,22,{...R,fill:'#D4A470',fillStyle:'hachure',hachureGap:3,hachureAngle:45}));
+// Tree rings
+v.appendChild(s.ellipse(220,105,50,12,{stroke:'#8B5E3C',strokeWidth:1,roughness:1.5}));
+v.appendChild(s.ellipse(220,105,25,7,{stroke:'#8B5E3C',strokeWidth:1,roughness:1.5}));
+// Axe — large, clear, embedded in stump top
+// Handle (long diagonal)
+v.appendChild(s.line(240,40,290,155,{stroke:'#8B5E3C',strokeWidth:4,roughness:1.2}));
+// Axe head (large, clear wedge shape)
+v.appendChild(s.polygon([[225,30],[235,15],[255,20],[245,42]],{...R,fill:'#9CA3AF',fillStyle:'solid',strokeWidth:2}));
+// Blade edge (shiny line)
+v.appendChild(s.line(225,30,235,15,{stroke:'#D4D0C8',strokeWidth:1.5,roughness:1}));
+// Wood chips
+[100,155,270,300].forEach(x=>v.appendChild(s.rectangle(x,160+Math.random()*8,10+Math.random()*8,4,{roughness:1.5,fill:'#D4A470',fillStyle:'solid',stroke:'#8B5E3C',strokeWidth:.8})));
 })();
 
 // Steel: ingot over fire
@@ -1868,7 +1871,36 @@ gsap.from('#v-map',{opacity:0,scale:.88,duration:1,ease:'power2.out',scrollTrigg
   const grade=document.getElementById('clayGrade');
   const canvas=document.getElementById('clayStroke');
   const ctx=canvas.getContext('2d');
+  const claySvg=document.getElementById('v-clay');
   const grades=['9B','8B','7B','6B','5B','4B','3B','2B','B','HB','H','2H','3H','4H','5H','6H','7H','8H','9H'];
+  // Bowl mixture element — we'll redraw it
+  function mixColor(val){
+    // val 0=all graphite (dark), 100=all clay (tan)
+    const r=Math.round(90+(212-90)*val/100);
+    const g=Math.round(96+(164-96)*val/100);
+    const b=Math.round(104+(112-104)*val/100);
+    return 'rgb('+r+','+g+','+b+')';
+  }
+  function updateBowl(val){
+    // Remove old mixture ellipse and redraw
+    const old=claySvg.getElementById('clayMix');
+    if(old)old.remove();
+    const rc2=rough.svg(claySvg);
+    const el=rc2.ellipse(170,160,80,10,{fill:mixColor(val),fillStyle:'solid',stroke:mixColor(Math.max(0,val-20)),strokeWidth:1,roughness:1.5});
+    el.id='clayMix';
+    claySvg.appendChild(el);
+    // Update pour stream thickness — more graphite = thicker left stream, more clay = thicker right
+    const oldL=claySvg.getElementById('pourL');
+    const oldR=claySvg.getElementById('pourR');
+    if(oldL)oldL.remove();
+    if(oldR)oldR.remove();
+    const lw=1+3*(1-val/100); // graphite stream thickness
+    const rw=1+3*(val/100);   // clay stream thickness
+    const elL=rc2.line(95,120,150,150,{stroke:'#5A6068',strokeWidth:lw,roughness:2,bowing:3});
+    elL.id='pourL';claySvg.appendChild(elL);
+    const elR=rc2.line(205,120,190,150,{stroke:'#D4A470',strokeWidth:rw,roughness:2,bowing:3});
+    elR.id='pourR';claySvg.appendChild(elR);
+  }
   function update(){
     const val=+slider.value;
     const idx=Math.round(val/100*(grades.length-1));
@@ -1884,6 +1916,8 @@ gsap.from('#v-map',{opacity:0,scale:.88,duration:1,ease:'power2.out',scrollTrigg
       ctx.lineTo(x,15+Math.random()*6-3);
     }
     ctx.stroke();
+    // Update bowl color and pour streams
+    updateBowl(val);
   }
   slider.addEventListener('input',update);
   update();
@@ -1927,7 +1961,7 @@ gsap.from('#v-map',{opacity:0,scale:.88,duration:1,ease:'power2.out',scrollTrigg
   let coolInterval=setInterval(()=>{
     if(!done&&temp>0){
       const ratio=temp/1000;
-      const loss=Math.pow(ratio,5)*200;
+      const loss=Math.pow(ratio,6)*250;
       temp=Math.max(0,temp-loss);
       updateTemp();
     }
@@ -1969,9 +2003,13 @@ gsap.from('#v-map',{opacity:0,scale:.88,duration:1,ease:'power2.out',scrollTrigg
   function drawLacquerPencil(){
     ctx.clearRect(0,0,280,60);
     const rc2=rough.canvas(canvas);
-    // Pencil body — gets more saturated/shiny with more coats
-    const alpha=.3+coats*.09;
-    const color='rgba(244,196,48,'+alpha+')';
+    // Pencil body — starts completely white, gradually becomes yellow
+    // Interpolate from white (#FFF8F0) to yellow (#F4C430)
+    const t=coats/maxCoats;
+    const r=Math.round(255-(255-244)*t);
+    const g=Math.round(248-(248-196)*t);
+    const b=Math.round(240-(240-48)*t);
+    const color='rgb('+r+','+g+','+b+')';
     rc2.rectangle(50,15,180,30,{fill:color,fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.5,roughness:1.5-coats*.1});
     // Tip
     rc2.polygon([[50,15],[30,30],[50,45]],{fill:'#8B5E3C',fillStyle:'solid',stroke:'#2C2C2C',strokeWidth:1.2,roughness:1.2});
