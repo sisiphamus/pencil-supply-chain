@@ -1854,16 +1854,10 @@ gsap.from('#v-map',{opacity:0,scale:.88,duration:1,ease:'power2.out',scrollTrigg
       area.classList.add('game-done');
       // Clear the wedge notch
       while(notchG.firstChild)notchG.removeChild(notchG.firstChild);
-      // Clip the SVG so the falling top disappears at the edge
-      svg.style.overflow='hidden';
-      // Only the top falls — rotate from the cut point, tips to the right
-      gsap.to(topG,{
-        rotation:85,
-        transformOrigin:(cutX+cutW/2)+'px '+cutY+'px',
-        duration:1.2,
-        ease:'power2.in',
-        onComplete:()=>{gsap.to(topG,{opacity:0,duration:.5})}
-      });
+      // Top tilts slightly then falls and fades — no harsh clipping
+      gsap.timeline()
+        .to(topG,{rotation:12,transformOrigin:(cutX+cutW/2)+'px '+cutY+'px',duration:.3,ease:'power1.in'})
+        .to(topG,{y:120,rotation:25,opacity:0,duration:.8,ease:'power2.in'});
     }
   });
 })();
